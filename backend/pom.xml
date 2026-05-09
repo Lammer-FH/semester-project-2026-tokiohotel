@@ -40,6 +40,11 @@
 			<artifactId>spring-boot-starter-webmvc-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.scalar.maven</groupId>
+			<artifactId>scalar-webmvc</artifactId>
+			<version>0.6.34</version>
+		</dependency>
 	</dependencies>
 
 	<build>
