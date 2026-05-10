@@ -1,0 +1,262 @@
+openapi: 3.0.3
+info:
+  title: Tokio Hotel API
+  description: API zur Auswahl und Buchung von Hotelzimmern des Tokio Hotels.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080
+    description: Lokaler Entwicklungsserver
+
+paths:
+  /rooms:
+    get:
+      summary: Zimmer auflisten
+      description: Ruft eine Liste der verfügbaren Zimmer für einen bestimmten Zeitraum ab.
+      parameters:
+        - name: startDate
+          in: query
+          required: true
+          description: Startdatum des Suchzeitraums.
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          required: true
+          description: Enddatum des Suchzeitraums.
+          schema:
+            type: string
+            format: date
+        - name: page
+          in: query
+          description: Seitennummer für die Paginierung.
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          description: Anzahl der Elemente pro Seite.
+          schema:
+            type: integer
+            default: 5
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedRooms'
+        '400':
+          description: Ungültige Parameter (z.B. Enddatum liegt vor dem Startdatum).
+        '404':
+          description: Keine verfügbaren Zimmer gefunden.
+        '500':
+          description: Interner Serverfehler.
+
+
+  /rooms/{id}:
+    get:
+      summary: Zimmerdetails abrufen
+      description: Ruft detaillierte Informationen zu einem bestimmten Zimmer ab.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Die eindeutige Kennung (ID) des Zimmers.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Detaillierte Zimmerinformationen.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Room'
+        '400':
+          description: Ungültiges Format der ID.
+        '404':
+          description: Zimmer mit dieser ID existiert nicht.
+        '500':
+          description: Interner Serverfehler.
+  /booking:
+    post:
+      summary: Buchung erstellen
+      description: Reserviert ein Zimmer für einen bestimmten Zeitraum.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookingRequest'
+      responses:
+        '201':
+          description: Buchung erfolgreich bestätigt.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Confirmation'
+        '400':
+          description: Ungültige Eingabedaten (z.B. Datumsformat).
+        '404':
+            description: Zimmer oder Gast nicht gefunden.
+        '409':
+            description: Zimmer ist im gewählten Zeitraum bereits ausgebucht.
+        '500':
+            description: Serverfehler bei der Verarbeitung.
+
+  /bookings/{id}:
+    get:
+      summary: Buchungsdetails abrufen
+      description: Liefert alle Informationen für die Bestätigungsseite.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Detaillierte Buchungsübersicht
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+
+components:
+  schemas:
+    Guest:
+      type: object
+      properties:
+        id:
+          type: integer
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+
+    Extra:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        icon:
+          type: string
+
+    RoomType:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        capacity:
+          type: integer
+        cost:
+          type: number
+          format: double
+        images:
+          type: array
+          items:
+            type: string
+          description: "JSON-Daten für Bilder"
+        extras:
+          type: array
+          items:
+            $ref: '#/components/schemas/Extra'
+
+    Room:
+      type: object
+      properties:
+        id:
+          type: integer
+        room_number:
+          type: string
+        room_type:
+          $ref: '#/components/schemas/RoomType'
+
+    Booking:
+      type: object
+      properties:
+        id:
+          type: integer
+        guest_id:
+          type: integer
+        room_id:
+          type: integer
+        total_cost:
+          type: number
+          format: double
+        booking_date:
+          type: string
+          format: date
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        with_breakfast:
+          type: boolean
+
+    BookingRequest:
+      type: object
+      required:
+        - room_id
+        - start_date
+        - end_date
+        - first_name
+        - last_name
+        - email
+      properties:
+        room_id:
+          type: integer
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+        with_breakfast:
+          type: boolean
+          default: false
+
+    Confirmation:
+      type: object
+      properties:
+        booking_id:
+          type: integer
+
+    PaginatedRooms:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/Room'
+        pagination:
+          $ref: '#/components/schemas/PaginationMetadata'
+
+    PaginationMetadata:
+      type: object
+      properties:
+        totalElements:
+          type: integer
+        totalPages:
+          type: integer
+        currentPage:
+          type: integer
+        pageSize:
+          type: integer
