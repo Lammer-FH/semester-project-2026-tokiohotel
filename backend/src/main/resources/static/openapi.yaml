@@ -16,14 +16,14 @@ paths:
       parameters:
         - name: startDate
           in: query
-          required: true
+          required: false
           description: Startdatum des Suchzeitraums.
           schema:
             type: string
             format: date
         - name: endDate
           in: query
-          required: true
+          required: false
           description: Enddatum des Suchzeitraums.
           schema:
             type: string
@@ -79,7 +79,7 @@ paths:
           description: Zimmer mit dieser ID existiert nicht.
         '500':
           description: Interner Serverfehler.
-  /booking:
+  /bookings:
     post:
       summary: Buchung erstellen
       description: Reserviert ein Zimmer für einen bestimmten Zeitraum.
@@ -122,6 +122,31 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Booking'
+
+  /guests/{id}/bookings:
+    get:
+      summary: Buchungen eines Gastes abrufen
+      description: Liefert eine Liste aller Buchungen, die mit der angegebenen Gast-ID verknüpft sind.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Die eindeutige Kennung (ID) des Gastes.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Eine Liste von Buchungen des Gastes.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Booking'
+        '404':
+          description: Gast nicht gefunden.
+        '500':
+          description: Interner Serverfehler.
 
 components:
   schemas:
@@ -186,10 +211,10 @@ components:
       properties:
         id:
           type: integer
-        guest_id:
-          type: integer
-        room_id:
-          type: integer
+        guest:
+          $ref: '#/components/schemas/Guest'
+        room:
+          $ref: '#/components/schemas/Room'
         total_cost:
           type: number
           format: double
