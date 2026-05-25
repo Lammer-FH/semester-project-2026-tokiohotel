@@ -3,6 +3,8 @@ package com.tokiohotel.backend.dto;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+
+import java.math.BigDecimal;
 import java.util.Set;
 
 public record RoomTypeDto(
@@ -14,7 +16,7 @@ public record RoomTypeDto(
 
         @NotNull(message = "Preis muss angegeben werden")
         @Min(value = 0, message = "Preis darf nicht negativ sein")
-        Double cost,
+        BigDecimal cost,
 
         @NotBlank(message = "Titel darf nicht leer sein")
         String title,

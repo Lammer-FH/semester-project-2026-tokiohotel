@@ -2,6 +2,8 @@ package com.tokiohotel.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 
@@ -22,7 +24,7 @@ public class RoomType {
     private Integer capacity;
 
     @Column(nullable = false)
-    private Double cost;
+    private BigDecimal cost;
 
     @Column(nullable = false)
     private String title;
