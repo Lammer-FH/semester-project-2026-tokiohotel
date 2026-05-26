@@ -1,66 +1,92 @@
 <template>
   <ion-page>
-    <ion-header>
-      <ion-toolbar>
-        <ion-title>TokioHotel</ion-title>
-        <ion-buttons slot="end">
-          <ion-button>
-            <ion-icon :icon="personCircleOutline" slot="icon-only" />
-          </ion-button>
-        </ion-buttons>
-      </ion-toolbar>
-    </ion-header>
-
     <ion-content :fullscreen="true">
-      <div class="availability-box">
-        <span>Check Availability: start - end</span>
+      <div class="hero-wrapper">
+        <AppHeader />
+        <HeroSection />
       </div>
-
-      <div class="rooms-section">
-        <h2 class="rooms-title">Rooms</h2>
-        <div class="rooms-grid">
-          <div v-for="i in 4" :key="i" class="room-card-placeholder" />
-        </div>
-      </div>
+      <AboutSnippet />
+      <section class="rooms-section">
+        <header class="rooms-section-header">
+          <h2 class="section-heading">Unsere Zimmer</h2>
+        </header>
+        <RoomGrid :rooms="rooms" />
+      </section>
+      <AppFooter />
     </ion-content>
   </ion-page>
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonButton, IonIcon } from '@ionic/vue';
-import { personCircleOutline } from 'ionicons/icons';
+import { computed, onMounted } from 'vue';
+import { IonPage, IonContent } from '@ionic/vue';
+import AppHeader from '@/components/organism/AppHeader.vue';
+import AppFooter from '@/components/organism/AppFooter.vue';
+import HeroSection from '@/components/molecules/HeroSection.vue';
+import AboutSnippet from '@/components/molecules/AboutSnippet.vue';
+import RoomGrid from '@/components/organism/RoomGrid.vue';
+import { useRoomStore } from '@/stores/roomStore';
+import { mockRooms } from '@/mocks/roomMocks';
+
+const store = useRoomStore();
+const rooms = computed(() => (store.rooms.length > 0 ? store.rooms : mockRooms));
+
+onMounted(() => {
+  store.fetchRooms();
+});
 </script>
 
 <style scoped>
-.availability-box {
-  margin: 16px;
-  padding: 16px;
-  border-radius: 12px;
-  background-color: var(--ion-color-light);
-  border: 1px solid var(--ion-color-medium);
-  text-align: center;
-  color: var(--ion-color-medium);
+.hero-wrapper {
+  position: relative;
 }
 
 .rooms-section {
-  padding: 0 16px;
+  background: #111111;
 }
 
-.rooms-title {
-  font-size: 22px;
-  font-weight: 600;
-  margin-bottom: 12px;
-}
-
-.rooms-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+.rooms-section-header {
+  padding: 64px 24px 40px;
+  display: flex;
+  flex-direction: column;
   gap: 12px;
 }
 
-.room-card-placeholder {
-  height: 160px;
-  border-radius: 12px;
-  background-color: var(--ion-color-light);
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #c9a96e;
+}
+
+.section-heading {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 36px;
+  font-weight: 400;
+  font-style: italic;
+  color: #f5f0e8;
+  margin: 0;
+  line-height: 1.2;
+}
+
+@media (min-width: 768px) {
+  .rooms-section-header {
+    padding: 72px 40px 48px;
+  }
+
+  .section-heading {
+    font-size: 48px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .rooms-section-header {
+    padding: 80px 64px 52px;
+  }
+
+  .section-heading {
+    font-size: 56px;
+  }
 }
 </style>
