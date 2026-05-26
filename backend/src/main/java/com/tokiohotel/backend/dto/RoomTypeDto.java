@@ -10,15 +10,15 @@ import java.util.Set;
 public record RoomTypeDto(
         Long id,
 
-        @NotNull(message = "Kapazität muss angegeben werden")
-        @Min(value = 1, message = "Kapazität muss mindestens 1 sein")
+        @NotNull(message = "Capacity must be provided")
+        @Min(value = 1, message = "Capacity must be at least 1")
         Integer capacity,
 
-        @NotNull(message = "Preis muss angegeben werden")
-        @Min(value = 0, message = "Preis darf nicht negativ sein")
+        @NotNull(message = "Cost must be provided")
+        @Min(value = 0, message = "Cost must not be negative")
         BigDecimal cost,
 
-        @NotBlank(message = "Titel darf nicht leer sein")
+        @NotBlank(message = "Title must not be blank")
         String title,
 
         String description,

@@ -7,9 +7,9 @@ import jakarta.validation.constraints.NotNull;
 public record RoomDto(
         Long id,
 
-        @NotBlank(message = "Zimmernummer darf nicht leer sein")
+        @NotBlank(message = "Room number must not be blank")
         String roomNumber,
 
-        @NotNull(message = "Zimmertyp muss zugewiesen werden")
+        @NotNull(message = "Room type must be assigned")
         RoomTypeDto roomType
 ) {}

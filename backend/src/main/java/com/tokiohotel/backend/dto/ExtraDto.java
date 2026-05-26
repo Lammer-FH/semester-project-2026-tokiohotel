@@ -5,9 +5,9 @@ import jakarta.validation.constraints.NotBlank;
 public record ExtraDto(
         Long id,
 
-        @NotBlank(message = "Name darf nicht leer sein")
+        @NotBlank(message = "Name must not be blank")
         String name,
 
-        @NotBlank(message = "Icon darf nicht leer sein")
+        @NotBlank(message = "Icon must not be blank")
         String icon
 ) {}
