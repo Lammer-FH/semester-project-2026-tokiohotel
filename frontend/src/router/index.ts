@@ -8,6 +8,14 @@ const routes: Array<RouteRecordRaw> = [
     redirect: '/tabs/tab1'
   },
   {
+    path: '/rooms',
+    component: () => import('@/views/RoomsPage.vue')
+  },
+  {
+    path: '/rooms/:id',
+    component: () => import('@/views/RoomDetailPage.vue')
+  },
+  {
     path: '/tabs/',
     component: TabsPage,
     children: [
@@ -21,7 +29,7 @@ const routes: Array<RouteRecordRaw> = [
       },
       {
         path: 'tab2',
-        component: () => import('@/views/Tab2Page.vue')
+        redirect: '/rooms'
       },
       {
         path: 'tab3',
