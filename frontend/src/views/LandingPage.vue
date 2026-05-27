@@ -6,13 +6,7 @@
         <HeroSection />
       </div>
       <AboutSnippet />
-      <section class="rooms-section">
-        <header class="rooms-section-header">
-          <h2 class="section-heading">Unsere Zimmer</h2>
-          <a class="section-link" @click="router.push('/rooms')">Alle Zimmer ansehen →</a>
-        </header>
-        <RoomGrid :rooms="rooms" />
-      </section>
+      <!-- TODO: room grid removed, moved to separate RoomListPage -->
       <AppFooter />
     </ion-content>
   </ion-page>
