@@ -1,10 +1,9 @@
 <template>
   <header class="app-header" :class="{ 'is-dark': dark }">
     <div class="header-spacer" />
-    <span class="header-logo">Tokio Hotel</span>
+    <span class="header-logo" @click="router.push('/')">Tokio Hotel</span>
     <nav class="header-nav">
-      <a class="nav-link" @click="router.push('/tabs/tab3')">Kontakt</a>
-      <a class="nav-link" @click="router.push('/tabs/tab2')">Zimmer</a>
+      <a class="nav-link" @click="router.push('/rooms')">Zimmer</a>
     </nav>
   </header>
 </template>
@@ -51,6 +50,7 @@ const router = useRouter();
   color: #ffffff;
   letter-spacing: 1.5px;
   white-space: nowrap;
+  cursor: pointer;
 }
 
 .header-nav {

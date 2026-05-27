@@ -15,8 +15,8 @@
       <div class="footer-col">
         <span class="footer-col-label">Navigation</span>
         <nav class="footer-nav">
-          <a class="footer-nav-link" @click="router.push('/tabs/tab1')">Startseite</a>
-          <a class="footer-nav-link" @click="router.push('/tabs/tab2')">Zimmer</a>
+          <a class="footer-nav-link" @click="router.push('/')">Startseite</a>
+          <a class="footer-nav-link" @click="router.push('/rooms')">Zimmer</a>
           <a class="footer-nav-link">Über uns</a>
           <a class="footer-nav-link">Impressum</a>
           <a class="footer-nav-link">Kontakt</a>

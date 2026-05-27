@@ -1,21 +1,24 @@
 <template>
   <div class="booking-bar">
-    <div class="booking-field">
-      <label class="field-label">Check-in</label>
-      <ion-datetime-button datetime="booking-checkin" class="date-btn" />
-      <ion-modal :keep-contents-mounted="true">
-        <ion-datetime
-          id="booking-checkin"
-          v-model="checkIn"
-          presentation="date"
-          locale="de-DE"
-          :first-day-of-week="1"
-        />
-      </ion-modal>
+    <!-- Check-in trigger -->
+    <div class="booking-field date-trigger" @click="openPicker">
+      <span class="field-label">Check-in</span>
+      <span class="date-value">{{ formattedCheckIn }}</span>
     </div>
+
     <div class="booking-divider" />
+
+    <!-- Check-out trigger (same picker) -->
+    <div class="booking-field date-trigger" @click="openPicker">
+      <span class="field-label">Check-out</span>
+      <span class="date-value">{{ formattedCheckOut }}</span>
+    </div>
+
+    <div class="booking-divider" />
+
+    <!-- Room type filter -->
     <div class="booking-field">
-      <label class="field-label">Zimmertyp</label>
+      <span class="field-label">Zimmertyp</span>
       <ion-select
         v-model="roomType"
         interface="popover"
@@ -23,30 +26,68 @@
         class="field-select"
       >
         <ion-select-option value="">Alle Zimmer</ion-select-option>
-        <ion-select-option value="standard">Standard Doppelzimmer</ion-select-option>
-        <ion-select-option value="deluxe">Deluxe Suite</ion-select-option>
-        <ion-select-option value="penthouse">Penthouse</ion-select-option>
+        <ion-select-option value="Standard Room">Standard Room</ion-select-option>
+        <ion-select-option value="Double Room">Double Room</ion-select-option>
+        <ion-select-option value="Deluxe">Deluxe</ion-select-option>
+        <ion-select-option value="Suite">Suite</ion-select-option>
+        <ion-select-option value="Family Room">Family Room</ion-select-option>
       </ion-select>
     </div>
+
     <div class="booking-action">
-      <HeroButton to="/tabs/tab2">Zimmer ansehen</HeroButton>
+      <ion-button class="search-btn" @click="search">Zimmer suchen</ion-button>
     </div>
+
+    <!-- Single date-range picker modal -->
+    <ion-modal
+      :is-open="isPickerOpen"
+      :keep-contents-mounted="true"
+      class="picker-modal"
+      @did-dismiss="isPickerOpen = false"
+    >
+      <DateRangePicker @close="isPickerOpen = false" />
+    </ion-modal>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import {
-  IonDatetime,
-  IonDatetimeButton,
-  IonModal,
-  IonSelect,
-  IonSelectOption,
-} from '@ionic/vue';
-import HeroButton from '@/components/atoms/HeroButton.vue';
+import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { IonModal, IonSelect, IonSelectOption, IonButton } from '@ionic/vue';
+import DateRangePicker from '@/components/molecules/DateRangePicker.vue';
+import { useRoomStore } from '@/stores/roomStore';
 
-const checkIn = ref('');
+const router = useRouter();
+const store = useRoomStore();
+
+const isPickerOpen = ref(false);
 const roomType = ref('');
+
+function openPicker() {
+  isPickerOpen.value = true;
+}
+
+function formatDate(dateStr: string): string {
+  if (!dateStr) return '—';
+  const [y, m, d] = dateStr.split('-').map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString('de-DE', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+}
+
+const formattedCheckIn = computed(() => formatDate(store.checkIn));
+const formattedCheckOut = computed(() => formatDate(store.checkOut));
+
+function search() {
+  const query: Record<string, string> = {
+    startDate: store.checkIn,
+    endDate: store.checkOut,
+  };
+  if (roomType.value) query.roomType = roomType.value;
+  router.push({ path: '/rooms', query });
+}
 </script>
 
 <style scoped>
@@ -70,6 +111,15 @@ const roomType = ref('');
   min-width: 0;
 }
 
+.date-trigger {
+  cursor: pointer;
+  user-select: none;
+}
+
+.date-trigger:hover .date-value {
+  color: rgba(255, 255, 255, 0.8);
+}
+
 .field-label {
   font-size: 10px;
   text-transform: uppercase;
@@ -78,16 +128,14 @@ const roomType = ref('');
   font-weight: 700;
 }
 
-/* IonDatetimeButton */
-.date-btn::part(native) {
-  background: transparent;
+.date-value {
   color: #ffffff;
   font-size: 14px;
   font-weight: 500;
-  padding: 0;
-  box-shadow: none;
-  border: none;
-  height: auto;
+  transition: color 0.15s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* IonSelect */
@@ -115,6 +163,33 @@ const roomType = ref('');
   flex-shrink: 0;
 }
 
+.search-btn {
+  --background: transparent;
+  --background-activated: rgba(201, 169, 110, 0.12);
+  --background-hover: rgba(201, 169, 110, 0.08);
+  --color: #c9a96e;
+  --border-radius: 0;
+  --border-color: #c9a96e;
+  --border-width: 1px;
+  --border-style: solid;
+  --box-shadow: none;
+  --padding-start: 28px;
+  --padding-end: 28px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  height: 46px;
+}
+
+/* Picker modal sizing */
+.picker-modal {
+  --width: min(400px, 100%);
+  --height: min(560px, 92vh);
+  --border-radius: 20px;
+  --box-shadow: 0 24px 64px rgba(0, 0, 0, 0.65);
+}
+
 @media (max-width: 640px) {
   .booking-bar {
     flex-direction: column;
@@ -128,8 +203,14 @@ const roomType = ref('');
     height: 1px;
   }
 
-  .booking-action ion-button {
+  .search-btn {
     width: 100%;
+  }
+
+  .picker-modal {
+    --width: 100%;
+    --height: 88vh;
+    --border-radius: 20px 20px 0 0;
   }
 }
 </style>
