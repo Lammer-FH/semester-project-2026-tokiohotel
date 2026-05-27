@@ -2,6 +2,10 @@
 - Prompt: "Du bist ein Lead FullStack Software Entwickler. Bewerte unsere API Doku anhand von allgemeinen Best Practises und diesen Anforderungen."
 - Model: Gemini-3.1-Pro
 
+## Test Daten für die H2 Datenbank geneieren
+- Prompt: "Erstelle mir hierfür ein passendes sql file mit sinnvollen Testdaten: --Entities--.
+
+"
 ## Generate mock data for API endpoints:
 - Prompt: "You know the yml, write the needed endpoints and return the needed mockData"
 - Model: Claude Sonnet 4.6 (Claude Code)
