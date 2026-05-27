@@ -5,7 +5,9 @@
       <div class="rooms-page">
         <header class="rooms-header">
           <h1 class="section-heading">Verfügbare Zimmer</h1>
-          <p v-if="activeFilters" class="filter-summary">{{ activeFilters }}</p>
+          <p v-if="activeFilters" class="filter-summary">
+            <ion-icon name="calendar-outline" class="filter-cal-icon" />{{ activeFilters }}
+          </p>
         </header>
 
         <div v-if="store.loading" class="state-message">Zimmer werden geladen…</div>
@@ -78,10 +80,17 @@ const filteredRooms = computed(() => {
   return store.rooms.filter((r) => r.room_type?.title === roomTypeFilter.value);
 });
 
+const fmt = new Intl.DateTimeFormat('de-AT', { weekday: 'short', day: 'numeric', month: 'long' });
+
+function fmtDate(dateStr: string): string {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  return fmt.format(new Date(y, m - 1, d));
+}
+
 const activeFilters = computed(() => {
   const parts: string[] = [];
-  if (startDate.value) parts.push(`ab ${startDate.value}`);
-  if (endDate.value) parts.push(`bis ${endDate.value}`);
+  if (startDate.value) parts.push(fmtDate(startDate.value));
+  if (endDate.value) parts.push(fmtDate(endDate.value));
   if (roomTypeFilter.value) parts.push(roomTypeFilter.value);
   return parts.join(' · ') || null;
 });
@@ -127,6 +136,14 @@ watch([startDate, endDate], loadRooms);
   color: #c9a96e;
   margin: 0;
   letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.filter-cal-icon {
+  font-size: 15px;
+  flex-shrink: 0;
 }
 
 .state-message {

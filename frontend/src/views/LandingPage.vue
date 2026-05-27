@@ -6,7 +6,6 @@
         <HeroSection />
       </div>
       <AboutSnippet />
-      <!-- TODO: room grid removed, moved to separate RoomListPage -->
       <AppFooter />
     </ion-content>
   </ion-page>
