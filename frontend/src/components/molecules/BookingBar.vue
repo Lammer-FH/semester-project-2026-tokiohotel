@@ -2,17 +2,31 @@
   <div class="booking-bar">
     <div class="booking-field">
       <label class="field-label">Check-in</label>
-      <input type="date" v-model="checkIn" class="field-input" />
+      <ion-datetime-button datetime="booking-checkin" class="date-btn" />
+      <ion-modal :keep-contents-mounted="true">
+        <ion-datetime
+          id="booking-checkin"
+          v-model="checkIn"
+          presentation="date"
+          locale="de-DE"
+          :first-day-of-week="1"
+        />
+      </ion-modal>
     </div>
     <div class="booking-divider" />
     <div class="booking-field">
       <label class="field-label">Zimmertyp</label>
-      <select v-model="roomType" class="field-input field-select">
-        <option value="">Alle Zimmer</option>
-        <option value="standard">Standard Doppelzimmer</option>
-        <option value="deluxe">Deluxe Suite</option>
-        <option value="penthouse">Penthouse</option>
-      </select>
+      <ion-select
+        v-model="roomType"
+        interface="popover"
+        placeholder="Alle Zimmer"
+        class="field-select"
+      >
+        <ion-select-option value="">Alle Zimmer</ion-select-option>
+        <ion-select-option value="standard">Standard Doppelzimmer</ion-select-option>
+        <ion-select-option value="deluxe">Deluxe Suite</ion-select-option>
+        <ion-select-option value="penthouse">Penthouse</ion-select-option>
+      </ion-select>
     </div>
     <div class="booking-action">
       <HeroButton to="/tabs/tab2">Zimmer ansehen</HeroButton>
@@ -22,6 +36,13 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import {
+  IonDatetime,
+  IonDatetimeButton,
+  IonModal,
+  IonSelect,
+  IonSelectOption,
+} from '@ionic/vue';
 import HeroButton from '@/components/atoms/HeroButton.vue';
 
 const checkIn = ref('');
@@ -57,31 +78,30 @@ const roomType = ref('');
   font-weight: 700;
 }
 
-.field-input {
+/* IonDatetimeButton */
+.date-btn::part(native) {
   background: transparent;
-  border: none;
-  outline: none;
   color: #ffffff;
   font-size: 14px;
   font-weight: 500;
-  width: 100%;
-  cursor: pointer;
   padding: 0;
+  box-shadow: none;
+  border: none;
+  height: auto;
 }
 
-.field-input option {
-  color: #111;
-  background: #fff;
-}
-
-.field-input::-webkit-calendar-picker-indicator {
-  filter: invert(1) opacity(0.7);
-  cursor: pointer;
-}
-
+/* IonSelect */
 .field-select {
-  appearance: none;
-  -webkit-appearance: none;
+  --color: #ffffff;
+  --placeholder-color: rgba(255, 255, 255, 0.7);
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
+  min-height: auto;
 }
 
 .booking-divider {

@@ -12,7 +12,7 @@ export const mockRooms: Room[] = [
       cost: 89.99,
       images: ['https://placehold.co/600x400?text=Standard+Single'],
       extras: [
-        { id: 1, name: 'WLAN', icon: 'wifi' },
+        { id: 1, name: 'WLAN', icon: 'wifi-outline' },
         { id: 2, name: 'TV', icon: 'tv-outline' },
       ],
     },
@@ -28,7 +28,7 @@ export const mockRooms: Room[] = [
       cost: 129.99,
       images: ['https://placehold.co/600x400?text=Standard+Double'],
       extras: [
-        { id: 1, name: 'WLAN', icon: 'wifi' },
+        { id: 1, name: 'WLAN', icon: 'wifi-outline' },
         { id: 2, name: 'TV', icon: 'tv-outline' },
         { id: 3, name: 'Minibar', icon: 'wine-outline' },
       ],
@@ -45,7 +45,7 @@ export const mockRooms: Room[] = [
       cost: 249.99,
       images: ['https://placehold.co/600x400?text=Deluxe+Suite'],
       extras: [
-        { id: 1, name: 'WLAN', icon: 'wifi' },
+        { id: 1, name: 'WLAN', icon: 'wifi-outline' },
         { id: 2, name: 'TV', icon: 'tv-outline' },
         { id: 3, name: 'Minibar', icon: 'wine-outline' },
         { id: 4, name: 'Whirlpool', icon: 'water-outline' },
@@ -63,7 +63,7 @@ export const mockRooms: Room[] = [
       cost: 189.99,
       images: ['https://placehold.co/600x400?text=Family+Room'],
       extras: [
-        { id: 1, name: 'WLAN', icon: 'wifi' },
+        { id: 1, name: 'WLAN', icon: 'wifi-outline' },
         { id: 2, name: 'TV', icon: 'tv-outline' },
         { id: 5, name: 'Kinderbett', icon: 'bed-outline' },
       ],
@@ -80,7 +80,7 @@ export const mockRooms: Room[] = [
       cost: 499.99,
       images: ['https://placehold.co/600x400?text=Penthouse'],
       extras: [
-        { id: 1, name: 'WLAN', icon: 'wifi' },
+        { id: 1, name: 'WLAN', icon: 'wifi-outline' },
         { id: 2, name: 'TV', icon: 'tv-outline' },
         { id: 3, name: 'Minibar', icon: 'wine-outline' },
         { id: 4, name: 'Whirlpool', icon: 'water-outline' },

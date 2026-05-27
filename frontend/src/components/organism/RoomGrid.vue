@@ -32,6 +32,8 @@ const cardSizes: Array<'large' | 'normal' | 'tall'> = [
   display: grid;
   gap: 12px;
   padding: 0 24px 64px;
+  width: 100%;
+  box-sizing: border-box;
 
   /* Mobile: 2-col */
   grid-template-columns: repeat(2, 1fr);
@@ -40,6 +42,10 @@ const cardSizes: Array<'large' | 'normal' | 'tall'> = [
     'c2 c3'
     'c4 c4'
     'c5 c5';
+}
+
+.card-wrapper {
+  min-width: 0; /* prevents grid items from overflowing their column */
 }
 
 .card-wrapper:nth-child(1) { grid-area: c1; min-height: 280px; }

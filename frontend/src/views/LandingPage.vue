@@ -9,6 +9,7 @@
       <section class="rooms-section">
         <header class="rooms-section-header">
           <h2 class="section-heading">Unsere Zimmer</h2>
+          <a class="section-link" @click="router.push('/rooms')">Alle Zimmer ansehen →</a>
         </header>
         <RoomGrid :rooms="rooms" />
       </section>
@@ -20,6 +21,7 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue';
 import { IonPage, IonContent } from '@ionic/vue';
+import { useRouter } from 'vue-router';
 import AppHeader from '@/components/organism/AppHeader.vue';
 import AppFooter from '@/components/organism/AppFooter.vue';
 import HeroSection from '@/components/molecules/HeroSection.vue';
@@ -28,6 +30,7 @@ import RoomGrid from '@/components/organism/RoomGrid.vue';
 import { useRoomStore } from '@/stores/roomStore';
 import { mockRooms } from '@/mocks/roomMocks';
 
+const router = useRouter();
 const store = useRoomStore();
 const rooms = computed(() => (store.rooms.length > 0 ? store.rooms : mockRooms));
 
@@ -68,6 +71,23 @@ onMounted(() => {
   color: #f5f0e8;
   margin: 0;
   line-height: 1.2;
+}
+
+.section-link {
+  display: inline-block;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  color: #c9a96e;
+  text-decoration: none;
+  cursor: pointer;
+  margin-top: 4px;
+  transition: opacity 0.2s;
+}
+
+.section-link:hover {
+  opacity: 0.7;
 }
 
 @media (min-width: 768px) {
