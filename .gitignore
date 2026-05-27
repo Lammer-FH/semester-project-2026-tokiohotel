@@ -1,4 +1,8 @@
 **/.idea
+.fake
+.DS_Store
+**/.DS_Store
+.vscode/
 
 # Ignore .env files, which may contain sensitive information
 .env

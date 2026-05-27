@@ -4,6 +4,24 @@ import router from './router';
 import { createPinia } from 'pinia';
 
 import { IonicVue } from '@ionic/vue';
+import { addIcons } from 'ionicons';
+import {
+  wifiOutline,
+  tvOutline,
+  wineOutline,
+  waterOutline,
+  bedOutline,
+  personOutline,
+} from 'ionicons/icons';
+
+addIcons({
+  'wifi-outline': wifiOutline,
+  'tv-outline': tvOutline,
+  'wine-outline': wineOutline,
+  'water-outline': waterOutline,
+  'bed-outline': bedOutline,
+  'person-outline': personOutline,
+});
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/vue/css/core.css';
