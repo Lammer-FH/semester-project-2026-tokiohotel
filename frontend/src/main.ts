@@ -12,6 +12,11 @@ import {
   waterOutline,
   bedOutline,
   personOutline,
+  restaurantOutline,
+  laptopOutline,
+  chevronBackOutline,
+  chevronForwardOutline,
+  calendarOutline,
 } from 'ionicons/icons';
 
 addIcons({
@@ -21,6 +26,11 @@ addIcons({
   'water-outline': waterOutline,
   'bed-outline': bedOutline,
   'person-outline': personOutline,
+  'restaurant-outline': restaurantOutline,
+  'laptop-outline': laptopOutline,
+  'chevron-back-outline': chevronBackOutline,
+  'chevron-forward-outline': chevronForwardOutline,
+  'calendar-outline': calendarOutline,
 });
 
 /* Core CSS required for Ionic components to work properly */
