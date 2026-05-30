@@ -100,7 +100,7 @@ async function loadRooms() {
     startDate: startDate.value,
     endDate: endDate.value,
     page: 0,
-    size: 5,
+    size: 10,
   });
 }
 

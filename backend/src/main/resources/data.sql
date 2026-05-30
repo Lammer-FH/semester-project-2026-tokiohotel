@@ -6,13 +6,13 @@ INSERT INTO extras (id, name, icon) VALUES (4, 'Whirlpool', 'hot_tub');
 
 -- 2. INSERT ROOM TYPES
 INSERT INTO room_types (id, title, capacity, cost, description, images) VALUES
-    (1, 'Standard Einzelzimmer', 1, 85.00, 'Ein gemütliches Zimmer für Alleinreisende.', 'img_single_1.jpg,img_single_2.jpg');
+    (1, 'Standard Einzelzimmer', 1, 85.00, 'Ein gemütliches Zimmer für Alleinreisende.', 'single_1.jpg');
 
 INSERT INTO room_types (id, title, capacity, cost, description, images) VALUES
-    (2, 'Standard Doppelzimmer', 2, 130.00, 'Perfekt für Paare mit komfortablem Doppelbett.', 'img_double_1.jpg');
+    (2, 'Standard Doppelzimmer', 2, 130.00, 'Perfekt für Paare mit komfortablem Doppelbett.', 'double_1.webp');
 
 INSERT INTO room_types (id, title, capacity, cost, description, images) VALUES
-    (3, 'Tokio Hotel Luxus-Suite', 4, 350.00, 'Die ultimative Suite mit Blick auf die Bühne und maximalem Luxus.', 'suite_1.jpg,suite_2.jpg,suite_3.jpg');
+    (3, 'Tokio Hotel Luxus-Suite', 4, 350.00, 'Die ultimative Suite mit Blick auf die Bühne und maximalem Luxus.', 'suite_1.jpg');
 
 
 -- 3. LINKING: ROOM TYPES <-> EXTRAS
