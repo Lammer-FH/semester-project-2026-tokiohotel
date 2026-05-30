@@ -52,6 +52,15 @@
                   {{ extra.name }}
                 </span>
               </div>
+              <div class="card-actions">
+                <button
+                  type="button"
+                  class="book-btn"
+                  @click.stop="router.push(`/rooms/${room.id}/book`)"
+                >
+                  Buchen
+                </button>
+              </div>
             </div>
           </li>
         </ul>
@@ -270,6 +279,31 @@ watch([startDate, endDate], loadRooms);
 .extra-icon {
   font-size: 13px;
   color: #c9a96e;
+}
+
+.card-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+.book-btn {
+  background: transparent;
+  color: #c9a96e;
+  border: 1px solid #c9a96e;
+  padding: 8px 20px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.book-btn:hover {
+  background: #c9a96e;
+  color: #111111;
 }
 
 /* Mobile: stack image on top */
