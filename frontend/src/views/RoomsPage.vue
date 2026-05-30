@@ -64,6 +64,26 @@
             </div>
           </li>
         </ul>
+
+        <nav v-if="totalPages > 1" class="pagination">
+          <button
+            type="button"
+            class="page-btn"
+            :disabled="currentPage === 0"
+            @click="goToPage(currentPage - 1)"
+          >
+            Vorherige
+          </button>
+          <span class="page-indicator">Seite {{ currentPage + 1 }} von {{ totalPages }}</span>
+          <button
+            type="button"
+            class="page-btn"
+            :disabled="currentPage >= totalPages - 1"
+            @click="goToPage(currentPage + 1)"
+          >
+            Nächste
+          </button>
+        </nav>
       </div>
     </ion-content>
   </ion-page>
@@ -83,6 +103,15 @@ const store = useRoomStore();
 const startDate = computed(() => route.query.startDate as string | undefined);
 const endDate = computed(() => route.query.endDate as string | undefined);
 const roomTypeFilter = computed(() => route.query.roomType as string | undefined);
+const currentPage = computed(() => {
+  const p = Number(route.query.page);
+  return Number.isFinite(p) && p > 0 ? p : 0;
+});
+const totalPages = computed(() => store.pagination?.totalPages ?? 1);
+
+function goToPage(p: number) {
+  router.push({ path: '/rooms', query: { ...route.query, page: String(p) } });
+}
 
 const filteredRooms = computed(() => {
   if (!roomTypeFilter.value) return store.rooms;
@@ -108,13 +137,13 @@ async function loadRooms() {
   await store.fetchRooms({
     startDate: startDate.value,
     endDate: endDate.value,
-    page: 0,
-    size: 10,
+    page: currentPage.value,
+    size: 5,
   });
 }
 
 onMounted(loadRooms);
-watch([startDate, endDate], loadRooms);
+watch([startDate, endDate, currentPage], loadRooms);
 </script>
 
 <style scoped>
@@ -166,7 +195,7 @@ watch([startDate, endDate], loadRooms);
 .room-list {
   list-style: none;
   margin: 0;
-  padding: 0 24px 64px;
+  padding: 0 24px 16px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -306,10 +335,48 @@ watch([startDate, endDate], loadRooms);
   color: #111111;
 }
 
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 0px 0 64px;
+}
+
+.page-btn {
+  background: transparent;
+  color: #c9a96e;
+  border: 1px solid #c9a96e;
+  padding: 8px 20px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.page-btn:hover:not(:disabled) {
+  background: #c9a96e;
+  color: #111111;
+}
+
+.page-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.page-indicator {
+  color: #a0998a;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
 /* Mobile: stack image on top */
 @media (max-width: 640px) {
   .room-list {
-    padding: 0 16px 48px;
+    padding: 0 16px 32px;
   }
 
   .room-card {
@@ -332,7 +399,7 @@ watch([startDate, endDate], loadRooms);
   }
 
   .room-list {
-    padding: 0 40px 80px;
+    padding: 0 40px 40px;
   }
 
   .card-image-wrap {
@@ -350,7 +417,7 @@ watch([startDate, endDate], loadRooms);
   }
 
   .room-list {
-    padding: 0 64px 80px;
+    padding: 0 64px 40px;
   }
 
   .card-image-wrap {
