@@ -25,26 +25,26 @@
           >
             <div class="card-image-wrap">
               <img
-                :src="room.room_type?.images?.[0] ?? `https://placehold.co/600x400?text=${encodeURIComponent(room.room_type?.title ?? 'Room')}`"
-                :alt="room.room_type?.title"
+                :src="room.roomType?.images || `https://placehold.co/600x400?text=${encodeURIComponent(room.roomType?.title ?? 'Room')}`"
+                :alt="room.roomType?.title"
                 class="card-image"
               />
             </div>
             <div class="card-body">
               <div class="card-top">
-                <h2 class="card-title">{{ room.room_type?.title }}</h2>
+                <h2 class="card-title">{{ room.roomType?.title }}</h2>
                 <span class="card-price">
-                  €{{ room.room_type?.cost?.toFixed(2) }}<span class="per-night"> / Nacht</span>
+                  €{{ room.roomType?.cost?.toFixed(2) }}<span class="per-night"> / Nacht</span>
                 </span>
               </div>
-              <p class="card-description">{{ room.room_type?.description }}</p>
+              <p class="card-description">{{ room.roomType?.description }}</p>
               <div class="card-meta">
-                <span class="meta-capacity">{{ room.room_type?.capacity }} Personen</span>
-                <span class="meta-room-number">Zimmer {{ room.room_number }}</span>
+                <span class="meta-capacity">{{ room.roomType?.capacity }} Personen</span>
+                <span class="meta-room-number">Zimmer {{ room.roomNumber }}</span>
               </div>
-              <div v-if="room.room_type?.extras?.length" class="card-extras">
+              <div v-if="room.roomType?.extras?.length" class="card-extras">
                 <span
-                  v-for="extra in room.room_type.extras"
+                  v-for="extra in room.roomType.extras"
                   :key="extra.id"
                   class="extra-chip"
                 >
@@ -52,9 +52,38 @@
                   {{ extra.name }}
                 </span>
               </div>
+              <div class="card-actions">
+                <button
+                  type="button"
+                  class="book-btn"
+                  @click.stop="router.push(`/rooms/${room.id}/book`)"
+                >
+                  Buchen
+                </button>
+              </div>
             </div>
           </li>
         </ul>
+
+        <nav v-if="totalPages > 1" class="pagination">
+          <button
+            type="button"
+            class="page-btn"
+            :disabled="currentPage === 0"
+            @click="goToPage(currentPage - 1)"
+          >
+            Vorherige
+          </button>
+          <span class="page-indicator">Seite {{ currentPage + 1 }} von {{ totalPages }}</span>
+          <button
+            type="button"
+            class="page-btn"
+            :disabled="currentPage >= totalPages - 1"
+            @click="goToPage(currentPage + 1)"
+          >
+            Nächste
+          </button>
+        </nav>
       </div>
     </ion-content>
   </ion-page>
@@ -74,10 +103,19 @@ const store = useRoomStore();
 const startDate = computed(() => route.query.startDate as string | undefined);
 const endDate = computed(() => route.query.endDate as string | undefined);
 const roomTypeFilter = computed(() => route.query.roomType as string | undefined);
+const currentPage = computed(() => {
+  const p = Number(route.query.page);
+  return Number.isFinite(p) && p > 0 ? p : 0;
+});
+const totalPages = computed(() => store.pagination?.totalPages ?? 1);
+
+function goToPage(p: number) {
+  router.push({ path: '/rooms', query: { ...route.query, page: String(p) } });
+}
 
 const filteredRooms = computed(() => {
   if (!roomTypeFilter.value) return store.rooms;
-  return store.rooms.filter((r) => r.room_type?.title === roomTypeFilter.value);
+  return store.rooms.filter((r) => r.roomType?.title === roomTypeFilter.value);
 });
 
 const fmt = new Intl.DateTimeFormat('de-AT', { weekday: 'short', day: 'numeric', month: 'long' });
@@ -99,13 +137,13 @@ async function loadRooms() {
   await store.fetchRooms({
     startDate: startDate.value,
     endDate: endDate.value,
-    page: 0,
+    page: currentPage.value,
     size: 5,
   });
 }
 
 onMounted(loadRooms);
-watch([startDate, endDate], loadRooms);
+watch([startDate, endDate, currentPage], loadRooms);
 </script>
 
 <style scoped>
@@ -157,7 +195,7 @@ watch([startDate, endDate], loadRooms);
 .room-list {
   list-style: none;
   margin: 0;
-  padding: 0 24px 64px;
+  padding: 0 24px 16px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -272,10 +310,73 @@ watch([startDate, endDate], loadRooms);
   color: #c9a96e;
 }
 
+.card-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+.book-btn {
+  background: transparent;
+  color: #c9a96e;
+  border: 1px solid #c9a96e;
+  padding: 8px 20px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.book-btn:hover {
+  background: #c9a96e;
+  color: #111111;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 0px 0 64px;
+}
+
+.page-btn {
+  background: transparent;
+  color: #c9a96e;
+  border: 1px solid #c9a96e;
+  padding: 8px 20px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.page-btn:hover:not(:disabled) {
+  background: #c9a96e;
+  color: #111111;
+}
+
+.page-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.page-indicator {
+  color: #a0998a;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
 /* Mobile: stack image on top */
 @media (max-width: 640px) {
   .room-list {
-    padding: 0 16px 48px;
+    padding: 0 16px 32px;
   }
 
   .room-card {
@@ -298,7 +399,7 @@ watch([startDate, endDate], loadRooms);
   }
 
   .room-list {
-    padding: 0 40px 80px;
+    padding: 0 40px 40px;
   }
 
   .card-image-wrap {
@@ -316,7 +417,7 @@ watch([startDate, endDate], loadRooms);
   }
 
   .room-list {
-    padding: 0 64px 80px;
+    padding: 0 64px 40px;
   }
 
   .card-image-wrap {

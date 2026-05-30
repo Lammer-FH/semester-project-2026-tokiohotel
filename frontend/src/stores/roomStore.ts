@@ -31,7 +31,12 @@ export const useRoomStore = defineStore('rooms', () => {
     try {
       const result = await roomService.getRooms(query);
       rooms.value = result.content ?? [];
-      pagination.value = result.pagination ?? null;
+      pagination.value = {
+        totalElements: result.totalElements,
+        totalPages: result.totalPages,
+        number: result.number,
+        size: result.size,
+      };
     } catch (e) {
       error.value = (e as Error).message;
     } finally {

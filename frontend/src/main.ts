@@ -17,6 +17,7 @@ import {
   chevronBackOutline,
   chevronForwardOutline,
   calendarOutline,
+  snowOutline,
 } from 'ionicons/icons';
 
 addIcons({
@@ -31,6 +32,7 @@ addIcons({
   'chevron-back-outline': chevronBackOutline,
   'chevron-forward-outline': chevronForwardOutline,
   'calendar-outline': calendarOutline,
+  'snow-outline': snowOutline,
 });
 
 /* Core CSS required for Ionic components to work properly */
