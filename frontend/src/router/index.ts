@@ -18,6 +18,14 @@ const routes: Array<RouteRecordRaw> = [
     path: '/rooms/:id/book',
     component: () => import('@/views/BookingPage.vue'),
   },
+  {
+    path: '/about',
+    component: () => import('@/views/AboutPage.vue'),
+  },
+  {
+    path: '/imprint',
+    component: () => import('@/views/ImprintPage.vue'),
+  },
 ];
 
 const router = createRouter({
