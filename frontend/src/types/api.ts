@@ -17,14 +17,14 @@ export interface RoomType {
   description?: string;
   capacity?: number;
   cost?: number;
-  images?: string[];
+  images?: string;
   extras?: Extra[];
 }
 
 export interface Room {
   id?: number;
-  room_number?: string;
-  room_type?: RoomType;
+  roomNumber?: string;
+  roomType?: RoomType;
 }
 
 export interface Booking {
@@ -55,11 +55,18 @@ export interface Confirmation {
 export interface PaginationMetadata {
   totalElements?: number;
   totalPages?: number;
-  currentPage?: number;
-  pageSize?: number;
+  number?: number;
+  size?: number;
 }
 
 export interface PaginatedRooms {
   content?: Room[];
-  pagination?: PaginationMetadata;
+  totalElements?: number;
+  totalPages?: number;
+  number?: number;
+  size?: number;
+  first?: boolean;
+  last?: boolean;
+  numberOfElements?: number;
+  empty?: boolean;
 }

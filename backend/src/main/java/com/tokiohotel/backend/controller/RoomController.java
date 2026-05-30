@@ -19,7 +19,10 @@ public class RoomController {
     private final RoomService roomService;
 
     @GetMapping
-    public Page<RoomDto> findAll(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
+    public Page<RoomDto> findAll(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "5") int size
+    ) {
         Pageable pageable = PageRequest.of(page, size);
         return roomService.findAll(pageable);
     }

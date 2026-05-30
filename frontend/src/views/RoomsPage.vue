@@ -25,26 +25,26 @@
           >
             <div class="card-image-wrap">
               <img
-                :src="room.room_type?.images?.[0] ?? `https://placehold.co/600x400?text=${encodeURIComponent(room.room_type?.title ?? 'Room')}`"
-                :alt="room.room_type?.title"
+                :src="room.roomType?.images || `https://placehold.co/600x400?text=${encodeURIComponent(room.roomType?.title ?? 'Room')}`"
+                :alt="room.roomType?.title"
                 class="card-image"
               />
             </div>
             <div class="card-body">
               <div class="card-top">
-                <h2 class="card-title">{{ room.room_type?.title }}</h2>
+                <h2 class="card-title">{{ room.roomType?.title }}</h2>
                 <span class="card-price">
-                  €{{ room.room_type?.cost?.toFixed(2) }}<span class="per-night"> / Nacht</span>
+                  €{{ room.roomType?.cost?.toFixed(2) }}<span class="per-night"> / Nacht</span>
                 </span>
               </div>
-              <p class="card-description">{{ room.room_type?.description }}</p>
+              <p class="card-description">{{ room.roomType?.description }}</p>
               <div class="card-meta">
-                <span class="meta-capacity">{{ room.room_type?.capacity }} Personen</span>
-                <span class="meta-room-number">Zimmer {{ room.room_number }}</span>
+                <span class="meta-capacity">{{ room.roomType?.capacity }} Personen</span>
+                <span class="meta-room-number">Zimmer {{ room.roomNumber }}</span>
               </div>
-              <div v-if="room.room_type?.extras?.length" class="card-extras">
+              <div v-if="room.roomType?.extras?.length" class="card-extras">
                 <span
-                  v-for="extra in room.room_type.extras"
+                  v-for="extra in room.roomType.extras"
                   :key="extra.id"
                   class="extra-chip"
                 >
@@ -77,7 +77,7 @@ const roomTypeFilter = computed(() => route.query.roomType as string | undefined
 
 const filteredRooms = computed(() => {
   if (!roomTypeFilter.value) return store.rooms;
-  return store.rooms.filter((r) => r.room_type?.title === roomTypeFilter.value);
+  return store.rooms.filter((r) => r.roomType?.title === roomTypeFilter.value);
 });
 
 const fmt = new Intl.DateTimeFormat('de-AT', { weekday: 'short', day: 'numeric', month: 'long' });
