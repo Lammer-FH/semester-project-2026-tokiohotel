@@ -1,16 +1,23 @@
 <template>
-  <article class="room-card" @click="navigateToRoom">
+  <article class="room-card" :class="`size-${size}`" @click="navigateToRoom">
     <div class="card-image-wrap">
-      <img :src="imageUrl" :alt="room.room_type?.title" class="card-image" />
+      <img :src="imageUrl" :alt="room.roomType?.title" class="card-image" />
     </div>
+
     <div class="card-info">
       <div class="card-info-top">
-        <h3 class="card-title">{{ room.room_type?.title }}</h3>
+        <div class="card-title-wrap">
+          <h3 class="card-title">{{ room.roomType?.title }}</h3>
+          <AvailabilityBadge :status="availabilityStatus" />
+        </div>
+
         <span class="card-cta">
           <span class="card-cta-label">Entdecken </span>→
         </span>
       </div>
-      <span class="card-capacity">{{ room.room_type?.capacity }} Personen</span>
+
+      <span class="card-capacity">{{ room.roomType?.capacity }} Personen</span>
+
       <div v-if="visibleExtras.length > 0" class="card-extras">
         <ion-icon
           v-for="extra in visibleExtras"
@@ -29,19 +36,28 @@ import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { IonIcon } from '@ionic/vue';
 import type { Room } from '@/types/api';
+import AvailabilityBadge from '@/components/atoms/AvailabilityBadge.vue';
 
-const props = defineProps<{
-  room: Room;
-  size: 'large' | 'normal' | 'tall';
-}>();
+type AvailabilityStatus = 'available' | 'unavailable' | 'unknown' | 'loading';
+
+const props = withDefaults(
+  defineProps<{
+    room: Room;
+    size: 'large' | 'normal' | 'tall';
+    availabilityStatus?: AvailabilityStatus;
+  }>(),
+  {
+    availabilityStatus: 'unknown',
+  },
+);
 
 const router = useRouter();
 
 const imageUrl = computed(
-  () => props.room.room_type?.images?.[0] ?? `/images/rooms/${props.room.id ?? 0}.jpg`,
+  () => props.room.roomType?.images?.[0] ?? `/images/rooms/${props.room.id ?? 0}.jpg`,
 );
 
-const extras = computed(() => props.room.room_type?.extras ?? []);
+const extras = computed(() => props.room.roomType?.extras ?? []);
 
 const hasOverflow = computed(() => extras.value.length > 5);
 
@@ -104,12 +120,19 @@ function navigateToRoom() {
   gap: 4px;
 }
 
-/* Row 1: title + arrow */
 .card-info-top {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 6px;
+}
+
+.card-title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
 }
 
 .card-title {
@@ -135,14 +158,12 @@ function navigateToRoom() {
   display: none;
 }
 
-/* Row 2: capacity */
 .card-capacity {
   font-size: 11px;
   color: #8a8278;
   letter-spacing: 0.04em;
 }
 
-/* Row 3: extras */
 .card-extras {
   display: flex;
   flex-wrap: wrap;
@@ -162,7 +183,6 @@ function navigateToRoom() {
   line-height: 1;
 }
 
-/* Tablet */
 @media (min-width: 768px) {
   .card-info {
     padding: 12px 16px;
@@ -185,7 +205,6 @@ function navigateToRoom() {
   }
 }
 
-/* Desktop: grid rows are fixed heights, so let image fill remaining space */
 @media (min-width: 1024px) {
   .card-image-wrap {
     aspect-ratio: unset;
