@@ -17,9 +17,9 @@
         <nav class="footer-nav">
           <a class="footer-nav-link" @click="router.push('/')">Startseite</a>
           <a class="footer-nav-link" @click="router.push('/rooms')">Zimmer</a>
-          <a class="footer-nav-link">Über uns</a>
-          <a class="footer-nav-link">Impressum</a>
-          <a class="footer-nav-link">Kontakt</a>
+          <a class="footer-nav-link" @click="router.push('/about')">Über uns</a>
+          <a class="footer-nav-link" @click="router.push('/imprint')">Impressum</a>
+          <a class="footer-nav-link" @click="router.push('/contact')">Kontakt</a>
         </nav>
       </div>
 
@@ -33,8 +33,8 @@
     <div class="footer-bottom">
       <span class="footer-copy">© 2026 Tokio Hotel. Alle Rechte vorbehalten.</span>
       <div class="footer-legal">
-        <a class="footer-legal-link">Datenschutz</a>
-        <a class="footer-legal-link">Impressum</a>
+        <a>Datenschutz</a>
+        <a class="footer-legal-link" @click="router.push('/imprint')  ">Impressum</a>
       </div>
     </div>
   </footer>
