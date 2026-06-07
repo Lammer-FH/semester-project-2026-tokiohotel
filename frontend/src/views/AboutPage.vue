@@ -1,6 +1,8 @@
 <template>
   <ion-page>
     <ion-content fullscreen>
+      <AppHeader :dark="true" />
+
       <main class="about-page">
         <section class="about-hero">
           <div class="about-copy">
@@ -64,12 +66,16 @@
           </p>
         </section>
       </main>
+
+      <AppFooter />
     </ion-content>
   </ion-page>
 </template>
 
 <script setup lang="ts">
 import { IonPage, IonContent } from '@ionic/vue';
+import AppHeader from '@/components/organism/AppHeader.vue';
+import AppFooter from '@/components/organism/AppFooter.vue';
 </script>
 
 <style scoped>

@@ -2,66 +2,46 @@
   <ion-page>
     <ion-content :fullscreen="false">
       <AppHeader :dark="true" />
+
       <div class="rooms-page">
         <header class="rooms-header">
           <h1 class="section-heading">Verfügbare Zimmer</h1>
+
           <p v-if="activeFilters" class="filter-summary">
-            <ion-icon name="calendar-outline" class="filter-cal-icon" />{{ activeFilters }}
+            <ion-icon name="calendar-outline" class="filter-cal-icon" />
+            {{ activeFilters }}
           </p>
         </header>
 
-        <div v-if="store.loading" class="state-message">Zimmer werden geladen…</div>
-
-        <div v-else-if="!store.loading && filteredRooms.length === 0" class="state-message">
-          Keine Zimmer für Ihre Anfrage gefunden.
+        <div v-if="store.loading" class="state-message">
+          Zimmer werden geladen…
         </div>
+
+        <div v-else-if="store.error" class="state-message state-message--error">
+          <h2>Zimmer konnten nicht geladen werden</h2>
+          <p>
+            Bitte prüfen Sie Ihre Verbindung oder versuchen Sie es später erneut.
+          </p>
+          <button type="button" class="retry-btn" @click="loadRooms">
+            Erneut versuchen
+          </button>
+        </div>
+
+        <div v-else-if="filteredRooms.length === 0" class="state-message">
+          Keine Zimmer für Ihre Anfrage gefunden.
+        </div>        
 
         <ul v-else class="room-list">
           <li
             v-for="room in filteredRooms"
             :key="room.id"
-            class="room-card"
-            @click="router.push(`/rooms/${room.id}`)"
+            class="room-card-item"
           >
-            <div class="card-image-wrap">
-              <img
-                :src="room.roomType?.images || `https://placehold.co/600x400?text=${encodeURIComponent(room.roomType?.title ?? 'Room')}`"
-                :alt="room.roomType?.title"
-                class="card-image"
-              />
-            </div>
-            <div class="card-body">
-              <div class="card-top">
-                <h2 class="card-title">{{ room.roomType?.title }}</h2>
-                <span class="card-price">
-                  €{{ room.roomType?.cost?.toFixed(2) }}<span class="per-night"> / Nacht</span>
-                </span>
-              </div>
-              <p class="card-description">{{ room.roomType?.description }}</p>
-              <div class="card-meta">
-                <span class="meta-capacity">{{ room.roomType?.capacity }} Personen</span>
-                <span class="meta-room-number">Zimmer {{ room.roomNumber }}</span>
-              </div>
-              <div v-if="room.roomType?.extras?.length" class="card-extras">
-                <span
-                  v-for="extra in room.roomType.extras"
-                  :key="extra.id"
-                  class="extra-chip"
-                >
-                  <ion-icon :name="extra.icon" class="extra-icon" />
-                  {{ extra.name }}
-                </span>
-              </div>
-              <div class="card-actions">
-                <button
-                  type="button"
-                  class="book-btn"
-                  @click.stop="router.push(`/rooms/${room.id}/book`)"
-                >
-                  Buchen
-                </button>
-              </div>
-            </div>
+            <RoomCard
+            :room="room"
+            size="normal"
+            :availability-status="startDate && endDate ? 'available' : 'unknown'"
+          />
           </li>
         </ul>
 
@@ -74,7 +54,11 @@
           >
             Vorherige
           </button>
-          <span class="page-indicator">Seite {{ currentPage + 1 }} von {{ totalPages }}</span>
+
+          <span class="page-indicator">
+            Seite {{ currentPage + 1 }} von {{ totalPages }}
+          </span>
+
           <button
             type="button"
             class="page-btn"
@@ -94,6 +78,7 @@ import { computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { IonPage, IonContent, IonIcon } from '@ionic/vue';
 import AppHeader from '@/components/organism/AppHeader.vue';
+import RoomCard from '@/components/molecules/RoomCard.vue';
 import { useRoomStore } from '@/stores/roomStore';
 
 const route = useRoute();
@@ -103,10 +88,12 @@ const store = useRoomStore();
 const startDate = computed(() => route.query.startDate as string | undefined);
 const endDate = computed(() => route.query.endDate as string | undefined);
 const roomTypeFilter = computed(() => route.query.roomType as string | undefined);
+
 const currentPage = computed(() => {
   const p = Number(route.query.page);
   return Number.isFinite(p) && p > 0 ? p : 0;
 });
+
 const totalPages = computed(() => store.pagination?.totalPages ?? 1);
 
 function goToPage(p: number) {
@@ -118,7 +105,11 @@ const filteredRooms = computed(() => {
   return store.rooms.filter((r) => r.roomType?.title === roomTypeFilter.value);
 });
 
-const fmt = new Intl.DateTimeFormat('de-AT', { weekday: 'short', day: 'numeric', month: 'long' });
+const fmt = new Intl.DateTimeFormat('de-AT', {
+  weekday: 'short',
+  day: 'numeric',
+  month: 'long',
+});
 
 function fmtDate(dateStr: string): string {
   const [y, m, d] = dateStr.split('-').map(Number);
@@ -127,9 +118,11 @@ function fmtDate(dateStr: string): string {
 
 const activeFilters = computed(() => {
   const parts: string[] = [];
+
   if (startDate.value) parts.push(fmtDate(startDate.value));
   if (endDate.value) parts.push(fmtDate(endDate.value));
   if (roomTypeFilter.value) parts.push(roomTypeFilter.value);
+
   return parts.join(' · ') || null;
 });
 
@@ -191,7 +184,6 @@ watch([startDate, endDate, currentPage], loadRooms);
   font-size: 15px;
 }
 
-/* Room list */
 .room-list {
   list-style: none;
   margin: 0;
@@ -201,138 +193,8 @@ watch([startDate, endDate, currentPage], loadRooms);
   gap: 16px;
 }
 
-.room-card {
-  display: flex;
-  background: #1a1a1a;
-  cursor: pointer;
-  overflow: hidden;
-  transition: opacity 0.2s;
-}
-
-.room-card:hover {
-  opacity: 0.88;
-}
-
-.card-image-wrap {
-  width: 220px;
-  flex-shrink: 0;
-  overflow: hidden;
-}
-
-.card-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  transition: transform 0.3s ease;
-}
-
-.room-card:hover .card-image {
-  transform: scale(1.03);
-}
-
-.card-body {
-  flex: 1;
-  padding: 20px 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  min-width: 0;
-}
-
-.card-top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.card-title {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 20px;
-  font-weight: 400;
-  font-style: italic;
-  color: #f5f0e8;
-  margin: 0;
-  line-height: 1.3;
-}
-
-.card-price {
-  font-size: 18px;
-  font-weight: 600;
-  color: #c9a96e;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.per-night {
-  font-size: 12px;
-  font-weight: 400;
-  color: #a0998a;
-}
-
-.card-description {
-  font-size: 14px;
-  color: #a0998a;
-  margin: 0;
-  line-height: 1.6;
-}
-
-.card-meta {
-  display: flex;
-  gap: 16px;
-  font-size: 12px;
-  color: #8a8278;
-  letter-spacing: 0.04em;
-}
-
-.card-extras {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 2px;
-}
-
-.extra-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  color: #a0998a;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 3px 8px;
-  border-radius: 4px;
-}
-
-.extra-icon {
-  font-size: 13px;
-  color: #c9a96e;
-}
-
-.card-actions {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: auto;
-  padding-top: 8px;
-}
-
-.book-btn {
-  background: transparent;
-  color: #c9a96e;
-  border: 1px solid #c9a96e;
-  padding: 8px 20px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s;
-}
-
-.book-btn:hover {
-  background: #c9a96e;
-  color: #111111;
+.room-card-item {
+  list-style: none;
 }
 
 .pagination {
@@ -340,7 +202,7 @@ watch([startDate, endDate, currentPage], loadRooms);
   align-items: center;
   justify-content: center;
   gap: 20px;
-  padding: 0px 0 64px;
+  padding: 0 0 64px;
 }
 
 .page-btn {
@@ -373,23 +235,51 @@ watch([startDate, endDate, currentPage], loadRooms);
   white-space: nowrap;
 }
 
-/* Mobile: stack image on top */
+.state-message h2 {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 28px;
+  font-weight: 400;
+  font-style: italic;
+  color: #f5f0e8;
+  margin: 0 0 12px;
+}
+
+.state-message p {
+  color: #a0998a;
+  margin: 0 0 20px;
+}
+
+.state-message--error {
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.retry-btn {
+  background: transparent;
+  color: #c9a96e;
+  border: 1px solid #c9a96e;
+  padding: 10px 22px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.retry-btn:hover {
+  background: #c9a96e;
+  color: #111111;
+}
+
 @media (max-width: 640px) {
   .room-list {
     padding: 0 16px 32px;
   }
 
-  .room-card {
+  .pagination {
     flex-direction: column;
-  }
-
-  .card-image-wrap {
-    width: 100%;
-    height: 180px;
-  }
-
-  .card-body {
-    padding: 16px;
+    gap: 12px;
   }
 }
 
@@ -400,10 +290,6 @@ watch([startDate, endDate, currentPage], loadRooms);
 
   .room-list {
     padding: 0 40px 40px;
-  }
-
-  .card-image-wrap {
-    width: 260px;
   }
 
   .section-heading {
@@ -420,12 +306,10 @@ watch([startDate, endDate, currentPage], loadRooms);
     padding: 0 64px 40px;
   }
 
-  .card-image-wrap {
-    width: 300px;
-  }
-
   .section-heading {
     font-size: 56px;
   }
 }
+
+
 </style>

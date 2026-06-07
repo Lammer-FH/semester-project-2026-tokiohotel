@@ -2,10 +2,25 @@
   <ion-page>
     <ion-content :fullscreen="false">
       <AppHeader :dark="true" />
-      <div class="detail-page">
-        <div v-if="store.loading" class="state-message">Zimmer wird geladen…</div>
 
-        <div v-else-if="!room" class="state-message">Zimmer nicht gefunden.</div>
+      <div class="detail-page">
+        <div v-if="store.loading" class="state-message">
+          Zimmer wird geladen…
+        </div>
+
+        <div v-else-if="store.error" class="state-message state-message--error">
+          <h2>Zimmer konnte nicht geladen werden</h2>
+          <p>
+            Bitte prüfen Sie Ihre Verbindung oder versuchen Sie es später erneut.
+          </p>
+          <button type="button" class="retry-btn" @click="loadRoom">
+            Erneut versuchen
+          </button>
+        </div>
+
+        <div v-else-if="!room" class="state-message">
+          Zimmer nicht gefunden.
+        </div>
 
         <article v-else class="detail">
           <div class="detail-image-wrap">
@@ -18,7 +33,11 @@
 
           <div class="detail-body">
             <header class="detail-header">
-              <h1 class="detail-title">{{ room.roomType?.title }}</h1>
+              <div class="detail-title-group">
+                <h1 class="detail-title">{{ room.roomType?.title }}</h1>
+                <AvailabilityBadge :status="availabilityStatus" />
+              </div>
+
               <span class="detail-price">
                 €{{ room.roomType?.cost?.toFixed(2) }}<span class="per-night"> / Nacht</span>
               </span>
@@ -57,11 +76,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { IonPage, IonContent, IonIcon, IonButton } from "@ionic/vue";
-import AppHeader from "@/components/organism/AppHeader.vue";
-import { useRoomStore } from "@/stores/roomStore";
+import { computed, onMounted, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { IonPage, IonContent, IonIcon, IonButton } from '@ionic/vue';
+import AppHeader from '@/components/organism/AppHeader.vue';
+import AvailabilityBadge from '@/components/atoms/AvailabilityBadge.vue';
+import { useRoomStore } from '@/stores/roomStore';
+
+type AvailabilityStatus = 'available' | 'unavailable' | 'unknown' | 'loading';
 
 const route = useRoute();
 const router = useRouter();
@@ -69,12 +91,30 @@ const store = useRoomStore();
 
 const room = computed(() => store.selectedRoom);
 
+const startDate = computed(() => route.query.startDate as string | undefined);
+const endDate = computed(() => route.query.endDate as string | undefined);
+
+const availabilityStatus = computed<AvailabilityStatus>(() =>
+  startDate.value && endDate.value ? 'available' : 'unknown',
+);
+
 const imageUrl = computed(() => {
   const images = room.value?.roomType?.images;
-  const first = images?.split(",")[0]?.trim();
-  return first
-    ? `/${first}`
-    : `https://placehold.co/1200x800?text=${encodeURIComponent(room.value?.roomType?.title ?? "Room")}`;
+
+  if (Array.isArray(images) && images.length > 0) {
+    return images[0];
+  }
+
+  if (typeof images === 'string') {
+    const first = images.split(',')[0]?.trim();
+    if (first) {
+      return first.startsWith('/') ? first : `/${first}`;
+    }
+  }
+
+  return `https://placehold.co/1200x800?text=${encodeURIComponent(
+    room.value?.roomType?.title ?? 'Room',
+  )}`;
 });
 
 function loadRoom() {
@@ -86,7 +126,10 @@ function loadRoom() {
 
 function goToBooking() {
   if (room.value?.id != null) {
-    router.push(`/rooms/${room.value.id}/book`);
+    router.push({
+      path: `/rooms/${room.value.id}/book`,
+      query: route.query,
+    });
   }
 }
 
@@ -142,8 +185,15 @@ watch(() => route.params.id, loadRoom);
   gap: 16px;
 }
 
+.detail-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
 .detail-title {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: Georgia, 'Times New Roman', serif;
   font-size: 32px;
   font-weight: 400;
   font-style: italic;
@@ -213,6 +263,43 @@ watch(() => route.params.id, loadRoom);
   text-transform: uppercase;
   font-size: 14px;
   margin-top: 16px;
+}
+
+.state-message h2 {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 28px;
+  font-weight: 400;
+  font-style: italic;
+  color: #f5f0e8;
+  margin: 0 0 12px;
+}
+
+.state-message p {
+  color: #a0998a;
+  margin: 0 0 20px;
+}
+
+.state-message--error {
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.retry-btn {
+  background: transparent;
+  color: #c9a96e;
+  border: 1px solid #c9a96e;
+  padding: 10px 22px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.retry-btn:hover {
+  background: #c9a96e;
+  color: #111111;
 }
 
 @media (min-width: 768px) {

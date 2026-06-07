@@ -1,6 +1,8 @@
 <template>
   <ion-page>
     <ion-content fullscreen>
+      <AppHeader :dark="true" />
+
       <main class="imprint-page">
         <section class="imprint-hero">
           <span class="eyebrow">Impressum</span>
@@ -52,12 +54,16 @@
           </div>
         </section>
       </main>
+      <AppFooter />
+      
     </ion-content>
   </ion-page>
 </template>
 
 <script setup lang="ts">
 import { IonPage, IonContent } from '@ionic/vue';
+import AppHeader from '@/components/organism/AppHeader.vue';
+import AppFooter from '@/components/organism/AppFooter.vue';
 </script>
 
 <style scoped>
@@ -132,12 +138,20 @@ a:hover {
   padding: 32px;
 }
 
-@media (max-width: 900px) {
+@media (min-width: 768px) {
   .imprint-page {
-    padding: 72px 28px;
+    padding: 80px 40px 112px;
   }
+}
 
-  .imprint-content {
+@media (min-width: 1024px) {
+  .imprint-page {
+    padding: 96px 64px 128px;
+  }
+}
+
+@media (max-width: 768px) {
+  .imprint-grid {
     grid-template-columns: 1fr;
   }
 }
