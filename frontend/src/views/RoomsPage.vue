@@ -17,9 +17,19 @@
           Zimmer werden geladen…
         </div>
 
-        <div v-else-if="!store.loading && filteredRooms.length === 0" class="state-message">
-          Keine Zimmer für Ihre Anfrage gefunden.
+        <div v-else-if="store.error" class="state-message state-message--error">
+          <h2>Zimmer konnten nicht geladen werden</h2>
+          <p>
+            Bitte prüfen Sie Ihre Verbindung oder versuchen Sie es später erneut.
+          </p>
+          <button type="button" class="retry-btn" @click="loadRooms">
+            Erneut versuchen
+          </button>
         </div>
+
+        <div v-else-if="filteredRooms.length === 0" class="state-message">
+          Keine Zimmer für Ihre Anfrage gefunden.
+        </div>        
 
         <ul v-else class="room-list">
           <li
@@ -225,6 +235,43 @@ watch([startDate, endDate, currentPage], loadRooms);
   white-space: nowrap;
 }
 
+.state-message h2 {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 28px;
+  font-weight: 400;
+  font-style: italic;
+  color: #f5f0e8;
+  margin: 0 0 12px;
+}
+
+.state-message p {
+  color: #a0998a;
+  margin: 0 0 20px;
+}
+
+.state-message--error {
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.retry-btn {
+  background: transparent;
+  color: #c9a96e;
+  border: 1px solid #c9a96e;
+  padding: 10px 22px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.retry-btn:hover {
+  background: #c9a96e;
+  color: #111111;
+}
+
 @media (max-width: 640px) {
   .room-list {
     padding: 0 16px 32px;
@@ -263,4 +310,6 @@ watch([startDate, endDate, currentPage], loadRooms);
     font-size: 56px;
   }
 }
+
+
 </style>
