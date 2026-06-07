@@ -4,9 +4,23 @@
       <AppHeader :dark="true" />
 
       <div class="detail-page">
-        <div v-if="store.loading" class="state-message">Zimmer wird geladen…</div>
+        <div v-if="store.loading" class="state-message">
+          Zimmer wird geladen…
+        </div>
 
-        <div v-else-if="!room" class="state-message">Zimmer nicht gefunden.</div>
+        <div v-else-if="store.error" class="state-message state-message--error">
+          <h2>Zimmer konnte nicht geladen werden</h2>
+          <p>
+            Bitte prüfen Sie Ihre Verbindung oder versuchen Sie es später erneut.
+          </p>
+          <button type="button" class="retry-btn" @click="loadRoom">
+            Erneut versuchen
+          </button>
+        </div>
+
+        <div v-else-if="!room" class="state-message">
+          Zimmer nicht gefunden.
+        </div>
 
         <article v-else class="detail">
           <div class="detail-image-wrap">
@@ -249,6 +263,43 @@ watch(() => route.params.id, loadRoom);
   text-transform: uppercase;
   font-size: 14px;
   margin-top: 16px;
+}
+
+.state-message h2 {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 28px;
+  font-weight: 400;
+  font-style: italic;
+  color: #f5f0e8;
+  margin: 0 0 12px;
+}
+
+.state-message p {
+  color: #a0998a;
+  margin: 0 0 20px;
+}
+
+.state-message--error {
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.retry-btn {
+  background: transparent;
+  color: #c9a96e;
+  border: 1px solid #c9a96e;
+  padding: 10px 22px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.retry-btn:hover {
+  background: #c9a96e;
+  color: #111111;
 }
 
 @media (min-width: 768px) {
