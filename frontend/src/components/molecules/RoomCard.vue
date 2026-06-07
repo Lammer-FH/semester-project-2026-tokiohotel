@@ -4,28 +4,45 @@
       <img :src="imageUrl" :alt="room.roomType?.title" class="card-image" />
     </div>
 
-    <div class="card-info">
-      <div class="card-info-top">
-        <div class="card-title-wrap">
-          <h3 class="card-title">{{ room.roomType?.title }}</h3>
+    <div class="card-body">
+      <div class="card-top">
+        <div class="card-title-group">
+          <h2 class="card-title">{{ room.roomType?.title }}</h2>
           <AvailabilityBadge :status="availabilityStatus" />
         </div>
 
-        <span class="card-cta">
-          <span class="card-cta-label">Entdecken </span>→
+        <span class="card-price">
+          €{{ room.roomType?.cost?.toFixed(2) }}
+          <span class="per-night"> / Nacht</span>
         </span>
       </div>
 
-      <span class="card-capacity">{{ room.roomType?.capacity }} Personen</span>
+      <p class="card-description">
+        {{ room.roomType?.description }}
+      </p>
+
+      <div class="card-meta">
+        <span class="meta-capacity">{{ room.roomType?.capacity }} Personen</span>
+        <span class="meta-room-number">Zimmer {{ room.roomNumber }}</span>
+      </div>
 
       <div v-if="visibleExtras.length > 0" class="card-extras">
-        <ion-icon
+        <span
           v-for="extra in visibleExtras"
-          :key="extra.icon"
-          :name="extra.icon"
-          class="extra-icon"
-        />
+          :key="extra.id ?? extra.icon"
+          class="extra-chip"
+        >
+          <ion-icon :name="extra.icon" class="extra-icon" />
+          {{ extra.name }}
+        </span>
+
         <span v-if="hasOverflow" class="extras-overflow">...</span>
+      </div>
+
+      <div class="card-actions">
+        <button type="button" class="book-btn" @click.stop="navigateToBooking">
+          Buchen
+        </button>
       </div>
     </div>
   </article>
@@ -43,19 +60,32 @@ type AvailabilityStatus = 'available' | 'unavailable' | 'unknown' | 'loading';
 const props = withDefaults(
   defineProps<{
     room: Room;
-    size: 'large' | 'normal' | 'tall';
+    size?: 'large' | 'normal' | 'tall';
     availabilityStatus?: AvailabilityStatus;
   }>(),
   {
+    size: 'normal',
     availabilityStatus: 'unknown',
   },
 );
 
 const router = useRouter();
 
-const imageUrl = computed(
-  () => props.room.roomType?.images?.[0] ?? `/images/rooms/${props.room.id ?? 0}.jpg`,
-);
+const imageUrl = computed(() => {
+  const images = props.room.roomType?.images as string[] | string | undefined;
+
+  if (Array.isArray(images) && images.length > 0) {
+    return images[0];
+  }
+
+  if (typeof images === 'string' && images.length > 0) {
+    return images;
+  }
+
+  return `https://placehold.co/600x400?text=${encodeURIComponent(
+    props.room.roomType?.title ?? 'Room',
+  )}`;
+});
 
 const extras = computed(() => props.room.roomType?.extras ?? []);
 
@@ -67,7 +97,16 @@ const visibleExtras = computed(() =>
 
 function navigateToRoom() {
   if (props.room.id != null) {
-    router.push(`/rooms/${props.room.id}`);
+    router.push({
+      path: `/rooms/${props.room.id}`,
+      query: router.currentRoute.value.query,
+    });
+  }
+}
+
+function navigateToBooking() {
+  if (props.room.id != null) {
+    router.push(`/rooms/${props.room.id}/book`);
   }
 }
 </script>
@@ -75,28 +114,21 @@ function navigateToRoom() {
 <style scoped>
 .room-card {
   display: flex;
-  flex-direction: column;
   background: #1a1a1a;
   cursor: pointer;
-  height: 100%;
   overflow: hidden;
-  min-width: 0;
+  transition: opacity 0.2s;
   width: 100%;
+}
+
+.room-card:hover {
+  opacity: 0.88;
 }
 
 .card-image-wrap {
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  overflow: hidden;
+  width: 220px;
   flex-shrink: 0;
-}
-
-.room-card.size-large .card-image-wrap {
-  aspect-ratio: 3 / 2;
-}
-
-.room-card.size-tall .card-image-wrap {
-  aspect-ratio: 1 / 1;
+  overflow: hidden;
 }
 
 .card-image {
@@ -108,58 +140,67 @@ function navigateToRoom() {
 }
 
 .room-card:hover .card-image {
-  transform: scale(1.02);
+  transform: scale(1.03);
 }
 
-.card-info {
+.card-body {
+  flex: 1;
+  padding: 20px 24px;
   display: flex;
   flex-direction: column;
-  background: #f5f0e8;
-  padding: 10px 12px;
-  flex-shrink: 0;
-  gap: 4px;
+  gap: 10px;
+  min-width: 0;
 }
 
-.card-info-top {
+.card-top {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 6px;
+  gap: 12px;
 }
 
-.card-title-wrap {
+.card-title-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  flex: 1;
+  gap: 8px;
   min-width: 0;
 }
 
 .card-title {
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: 13px;
+  font-size: 20px;
   font-weight: 400;
   font-style: italic;
-  color: #1a1a1a;
+  color: #f5f0e8;
   margin: 0;
   line-height: 1.3;
-  flex: 1;
-  min-width: 0;
 }
 
-.card-cta {
-  font-size: 14px;
+.card-price {
+  font-size: 18px;
+  font-weight: 600;
   color: #c9a96e;
+  white-space: nowrap;
   flex-shrink: 0;
-  line-height: 1.3;
 }
 
-.card-cta-label {
-  display: none;
+.per-night {
+  font-size: 12px;
+  font-weight: 400;
+  color: #a0998a;
 }
 
-.card-capacity {
-  font-size: 11px;
+.card-description {
+  font-size: 14px;
+  color: #a0998a;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.card-meta {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
   color: #8a8278;
   letter-spacing: 0.04em;
 }
@@ -167,13 +208,24 @@ function navigateToRoom() {
 .card-extras {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
   gap: 8px;
-  margin-top: 4px;
+  margin-top: 2px;
+}
+
+.extra-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #a0998a;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 3px 8px;
+  border-radius: 4px;
 }
 
 .extra-icon {
-  font-size: 18px;
+  font-size: 13px;
   color: #c9a96e;
 }
 
@@ -183,39 +235,64 @@ function navigateToRoom() {
   line-height: 1;
 }
 
+.card-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+.book-btn {
+  background: transparent;
+  color: #c9a96e;
+  border: 1px solid #c9a96e;
+  padding: 8px 20px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.book-btn:hover {
+  background: #c9a96e;
+  color: #111111;
+}
+
+/* Mobile: stack image on top */
+@media (max-width: 640px) {
+  .room-card {
+    flex-direction: column;
+  }
+
+  .card-image-wrap {
+    width: 100%;
+    height: 180px;
+  }
+
+  .card-body {
+    padding: 16px;
+  }
+
+  .card-top {
+    flex-direction: column;
+  }
+
+  .card-price {
+    font-size: 16px;
+  }
+}
+
 @media (min-width: 768px) {
-  .card-info {
-    padding: 12px 16px;
-    gap: 5px;
-  }
-
-  .card-title {
-    font-size: 15px;
-  }
-
-  .card-cta {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-
-  .card-cta-label {
-    display: inline;
+  .card-image-wrap {
+    width: 260px;
   }
 }
 
 @media (min-width: 1024px) {
   .card-image-wrap {
-    aspect-ratio: unset;
-    flex: 1;
-    min-height: 0;
-  }
-
-  .room-card.size-large .card-image-wrap,
-  .room-card.size-tall .card-image-wrap {
-    aspect-ratio: unset;
-    flex: 1;
+    width: 300px;
   }
 }
 </style>
