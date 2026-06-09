@@ -16,6 +16,7 @@ export const useRoomStore = defineStore('rooms', () => {
   const loading = ref(false);
   const error = ref<string | null>(null);
   const availability = ref<AvailabilityStatus>('unknown');
+  const availableRoomIds = ref<Set<number> | null>(null);
 
   const _today = new Date();
   const _tomorrow = new Date(_today);
@@ -74,8 +75,29 @@ export const useRoomStore = defineStore('rooms', () => {
     }
   }
 
+  async function fetchAvailableRoomIds(startDate: string, endDate: string) {
+    if (!startDate || !endDate) {
+      availableRoomIds.value = null;
+      return;
+    }
+    try {
+      const result = await roomService.getRooms({ startDate, endDate, page: 0, size: 100 });
+      availableRoomIds.value = new Set(
+        (result.content ?? []).map((r) => r.id).filter((id): id is number => id != null),
+      );
+    } catch {
+      availableRoomIds.value = null;
+    }
+  }
+
+  function getRoomAvailability(roomId: number | undefined): AvailabilityStatus {
+    if (roomId == null || availableRoomIds.value === null) return 'unknown';
+    return availableRoomIds.value.has(roomId) ? 'available' : 'unavailable';
+  }
+
   return {
-    rooms, selectedRoom, pagination, loading, error, availability,
-    fetchRooms, fetchRoomById, checkAvailability, checkIn, checkOut, setDates,
+    rooms, selectedRoom, pagination, loading, error, availability, availableRoomIds,
+    fetchRooms, fetchRoomById, checkAvailability, fetchAvailableRoomIds, getRoomAvailability,
+    checkIn, checkOut, setDates,
   };
 });
