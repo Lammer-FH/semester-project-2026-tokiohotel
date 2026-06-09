@@ -19,6 +19,10 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/views/BookingPage.vue'),
   },
   {
+    path: '/bookings/:id/confirmation',
+    component: () => import('@/views/BookingConfirmationPage.vue'),
+  },
+  {
     path: '/about',
     component: () => import('@/views/AboutPage.vue'),
   },

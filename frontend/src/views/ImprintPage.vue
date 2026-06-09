@@ -17,7 +17,7 @@
             <span class="card-label">Betreiber</span>
             <h2>Tokio Hotel</h2>
             <p>
-              Kärntner Ring 12<br />
+              Opern Ring 2<br />
               1010 Wien<br />
               Österreich
             </p>
