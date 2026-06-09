@@ -3,6 +3,8 @@ import { ref } from 'vue';
 import type { Room, PaginationMetadata } from '@/types/api';
 import { roomService, type RoomQuery } from '@/services/roomService';
 
+type AvailabilityStatus = 'available' | 'unavailable' | 'unknown' | 'loading';
+
 function dayStr(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
@@ -13,6 +15,7 @@ export const useRoomStore = defineStore('rooms', () => {
   const pagination = ref<PaginationMetadata | null>(null);
   const loading = ref(false);
   const error = ref<string | null>(null);
+  const availability = ref<AvailabilityStatus>('unknown');
 
   const _today = new Date();
   const _tomorrow = new Date(_today);
@@ -56,5 +59,23 @@ export const useRoomStore = defineStore('rooms', () => {
     }
   }
 
-  return { rooms, selectedRoom, pagination, loading, error, fetchRooms, fetchRoomById, checkIn, checkOut, setDates };
+  async function checkAvailability(roomId: number, startDate: string, endDate: string) {
+    if (!startDate || !endDate) {
+      availability.value = 'unknown';
+      return;
+    }
+    availability.value = 'loading';
+    try {
+      const result = await roomService.getRooms({ startDate, endDate, page: 0, size: 100 });
+      const found = (result.content ?? []).some((r) => r.id === roomId);
+      availability.value = found ? 'available' : 'unavailable';
+    } catch {
+      availability.value = 'unknown';
+    }
+  }
+
+  return {
+    rooms, selectedRoom, pagination, loading, error, availability,
+    fetchRooms, fetchRoomById, checkAvailability, checkIn, checkOut, setDates,
+  };
 });
