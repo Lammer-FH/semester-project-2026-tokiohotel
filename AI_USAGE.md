@@ -96,3 +96,24 @@
 - Accepted: Using a computed property to compare both trimmed+lowercased values
 - Modified: None
 - Rejected: None
+
+## Google Maps embed for directions:
+- Prompt: "How do i embed Google Maps in a Vue 3 component without needing an API key - just a simple iframe for showing a hotel location?"
+- Model: Claude Sonnet 4.6 (claude.ai)
+- Accepted: Explanation of using the Google Maps embed iframe with a place query, no API key needed for basic embeds
+- Modified: Adjusted the coordinates and zoom level to match our hotel location in Vienna
+- Rejected: Suggestion to use the full Google Maps JavaScript API - overkill for a static location display
+
+## Print-friendly CSS for booking confirmation:
+- Prompt: "How do i make a dark-themed page printable on A4 using @media print - what colors and layout adjustments are needed?"
+- Model: Claude Sonnet 4.6 (claude.ai)
+- Accepted: Explanation of using @media print to override dark backgrounds to white, hide interactive elements with a no-print class, and adjust font colors for readability on paper
+- Modified: Kept some brand colors (gold accents) in the print version for a nicer look
+- Rejected: None
+
+## Structuring a multi-section confirmation page:
+- Prompt: "Whats a good way to structure a booking confirmation page in sections - room details, booking period, guest data, directions, contact - using semantic HTML?"
+- Model: Claude Sonnet 4.6 (claude.ai)
+- Accepted: Using article > section pattern with dl/dt/dd for key-value pairs and address element for contact info
+- Modified: Adapted the section headings to match our existing uppercase label style
+- Rejected: None
