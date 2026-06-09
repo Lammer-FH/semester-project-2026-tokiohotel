@@ -3,6 +3,12 @@
     <ion-content :fullscreen="false">
       <AppHeader :dark="true" />
 
+      <div class="booking-topbar">
+        <button type="button" class="dismiss-btn" @click="dismiss">
+          ✕ Buchung abbrechen
+        </button>
+      </div>
+
       <div class="booking-page">
         <div v-if="roomStore.loading && !room" class="state-message">
           Zimmer wird geladen…
@@ -323,6 +329,12 @@ function resetState() {
   withBreakfast.value = false;
 }
 
+function dismiss() {
+  const id = route.params.id;
+  bookingStore.resetBooking();
+  router.push(`/rooms/${id}`);
+}
+
 function loadRoom() {
   const id = Number(route.params.id);
 
@@ -363,10 +375,37 @@ watch(
 </script>
 
 <style scoped>
+ion-content {
+  --ion-background-color: #111111;
+}
+
+.booking-topbar {
+  display: flex;
+  justify-content: flex-end;
+  padding: 12px 24px 0;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.dismiss-btn {
+  background: transparent;
+  border: none;
+  color: #8a8278;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  padding: 8px 0;
+  transition: color 0.15s;
+}
+
+.dismiss-btn:hover {
+  color: #d97766;
+}
+
 .booking-page {
-  background: #111111;
   min-height: 100vh;
-  padding: 32px 24px 64px;
+  padding: 16px 24px 64px;
   max-width: 720px;
   margin: 0 auto;
 }
