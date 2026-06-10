@@ -40,8 +40,13 @@
       </div>
 
       <div class="card-actions">
-        <button type="button" class="book-btn" @click.stop="navigateToBooking">
-          Buchen
+        <button
+          type="button"
+          class="book-btn"
+          :disabled="isUnavailable"
+          @click.stop="navigateToBooking"
+        >
+          {{ isUnavailable ? 'Nicht verfügbar' : 'Buchen' }}
         </button>
       </div>
     </div>
@@ -70,6 +75,10 @@ const props = withDefaults(
 );
 
 const router = useRouter();
+
+const isUnavailable = computed(
+  () => props.availabilityStatus === 'unavailable',
+);
 
 const imageUrl = computed(() => {
   const images = props.room.roomType?.images as string[] | string | undefined;
@@ -105,7 +114,7 @@ function navigateToRoom() {
 }
 
 function navigateToBooking() {
-  if (props.room.id != null) {
+  if (props.room.id != null && !isUnavailable.value) {
     router.push(`/rooms/${props.room.id}/book`);
   }
 }
@@ -258,6 +267,17 @@ function navigateToBooking() {
 .book-btn:hover {
   background: #c9a96e;
   color: #111111;
+}
+
+.book-btn:disabled {
+  color: #8a8278;
+  border-color: rgba(255, 255, 255, 0.15);
+  cursor: not-allowed;
+}
+
+.book-btn:disabled:hover {
+  background: transparent;
+  color: #8a8278;
 }
 
 /* Mobile: stack image on top */

@@ -4,6 +4,12 @@
       <AppHeader :dark="true" />
 
       <div class="detail-page">
+        <div class="detail-topbar">
+          <button type="button" class="back-btn" @click="goBack">
+            Zurück
+          </button>
+        </div>
+
         <div v-if="store.loading" class="state-message">
           Zimmer wird geladen…
         </div>
@@ -64,9 +70,10 @@
             <ion-button
               expand="block"
               class="book-button"
+              :disabled="isUnavailable"
               @click="goToBooking"
             >
-              Buchen
+              {{ isUnavailable ? 'Nicht verfügbar' : 'Buchen' }}
             </ion-button>
           </div>
         </article>
@@ -93,6 +100,8 @@ const startDate = computed(() => route.query.startDate as string | undefined);
 const endDate = computed(() => route.query.endDate as string | undefined);
 
 const availabilityStatus = computed(() => store.availability);
+
+const isUnavailable = computed(() => store.availability === 'unavailable');
 
 const imageUrl = computed(() => {
   const images = room.value?.roomType?.images;
@@ -124,11 +133,19 @@ function loadRoom() {
 function checkRoomAvailability(id: number) {
   if (startDate.value && endDate.value) {
     store.checkAvailability(id, startDate.value, endDate.value);
+  } else {
+    // No timeframe selected: clear any stale status from a previous room so
+    // the Buchen button isn't wrongly disabled.
+    store.availability = 'unknown';
   }
 }
 
+function goBack() {
+  router.push({ path: '/rooms', query: route.query });
+}
+
 function goToBooking() {
-  if (room.value?.id != null) {
+  if (room.value?.id != null && !isUnavailable.value) {
     router.push({
       path: `/rooms/${room.value.id}/book`,
       query: route.query,
@@ -145,10 +162,40 @@ watch([startDate, endDate], () => {
 </script>
 
 <style scoped>
+ion-content {
+  --ion-background-color: #111111;
+}
+
+.detail-topbar {
+  display: flex;
+  padding: 12px 0 0;
+}
+
+/* Secondary outline button, matching .retry-btn / .page-btn / .secondary-btn. */
+.back-btn {
+  background: transparent;
+  color: #c9a96e;
+  border: 1px solid #c9a96e;
+  border-radius: 0;
+  padding: 8px 18px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.back-btn:hover {
+  background: #c9a96e;
+  color: #111111;
+}
+
 .detail-page {
-  background: #111111;
+  max-width: 1400px;
+  margin: 0 auto;
   min-height: 100vh;
-  padding-bottom: 64px;
+  padding: 0 24px 64px;
 }
 
 .state-message {
@@ -179,7 +226,6 @@ watch([startDate, endDate], () => {
 }
 
 .detail-body {
-  padding: 0 24px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -310,9 +356,13 @@ watch([startDate, endDate], () => {
 }
 
 @media (min-width: 768px) {
+  .detail-page {
+    padding: 0 40px 64px;
+  }
+
   .detail {
     flex-direction: row;
-    padding: 32px 40px;
+    padding: 32px 0;
     gap: 40px;
   }
 
@@ -332,10 +382,12 @@ watch([startDate, endDate], () => {
 }
 
 @media (min-width: 1024px) {
+  .detail-page {
+    padding: 0 64px 64px;
+  }
+
   .detail {
-    padding: 48px 64px;
-    max-width: 1400px;
-    margin: 0 auto;
+    padding: 48px 0;
   }
 
   .detail-title {
