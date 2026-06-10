@@ -17,10 +17,11 @@
     </div>
     <div class="about-image-wrap">
       <img
-        src="https://images.unsplash.com/photo-1564078516393-cf04bd966897?w=800&q=85"
+        src="/hotel_lobby.webp"
         alt="Hotel interior"
         class="about-image"
       />
+      <div class="about-image-overlay"></div>
     </div>
   </section>
 </template>
@@ -88,6 +89,17 @@
 .about-image-wrap {
   flex: 1;
   overflow: hidden;
+  position: relative
+}
+
+.about-image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to right, #111111 0%, rgba(17, 17, 17, 0) 100%);
+  pointer-events: none;
 }
 
 .about-image {
@@ -115,6 +127,10 @@
 
   .about-heading {
     font-size: 28px;
+  }
+
+  .about-image-overlay {
+    background: linear-gradient(to top, #111111 0%, rgba(17, 17, 17, 0) 100%);
   }
 }
 </style>
