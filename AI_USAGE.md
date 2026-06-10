@@ -1,11 +1,23 @@
-## Feedback für API einholen:
+## Get feedback for the API:
 - Prompt: "Du bist ein Lead FullStack Software Entwickler. Bewerte unsere API Doku anhand von allgemeinen Best Practises und diesen Anforderungen."
 - Model: Gemini-3.1-Pro
+- Accepted: Applied some of the AI suggestions but not all because some were not relevant to our specific use case.
 
-## Test Daten für die H2 Datenbank geneieren
+## Generate test data for the h2 database:
 - Prompt: "Erstelle mir hierfür ein passendes sql file mit sinnvollen Testdaten: --Entities--.
+- Model: Gemini-3.1-Pro
+- Accepted: SQL file with mock data matched our use case. 
 
-"
+## Generate Favicon: 
+- Prompt: "Generiere ein minimalistisches Hotel Icon für ein luxiuriöses Hotel in Wien, das als Favicon verwendet werden kann."
+- Model: Gemini Nano Banana
+- Modified: "Remove Background"
+
+## Generate Hotel images:
+- Prompt: "Generiere ein hochkant Bild von einer Hotel Lobby in Wien"
+- Model: Gemini Nano Banana
+- Modified: "Passe den Hotel Namen zu "Tokio Hotel" an."
+
 ## Generate mock data for API endpoints:
 - Prompt: "You know the yml, write the needed endpoints and return the needed mockData"
 - Model: Claude Sonnet 4.6 (Claude Code)
