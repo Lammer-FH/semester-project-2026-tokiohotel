@@ -83,8 +83,6 @@ import AppHeader from '@/components/organism/AppHeader.vue';
 import AvailabilityBadge from '@/components/atoms/AvailabilityBadge.vue';
 import { useRoomStore } from '@/stores/roomStore';
 
-type AvailabilityStatus = 'available' | 'unavailable' | 'unknown' | 'loading';
-
 const route = useRoute();
 const router = useRouter();
 const store = useRoomStore();
@@ -94,9 +92,7 @@ const room = computed(() => store.selectedRoom);
 const startDate = computed(() => route.query.startDate as string | undefined);
 const endDate = computed(() => route.query.endDate as string | undefined);
 
-const availabilityStatus = computed<AvailabilityStatus>(() =>
-  startDate.value && endDate.value ? 'available' : 'unknown',
-);
+const availabilityStatus = computed(() => store.availability);
 
 const imageUrl = computed(() => {
   const images = room.value?.roomType?.images;
@@ -121,6 +117,13 @@ function loadRoom() {
   const id = Number(route.params.id);
   if (!Number.isNaN(id)) {
     store.fetchRoomById(id);
+    checkRoomAvailability(id);
+  }
+}
+
+function checkRoomAvailability(id: number) {
+  if (startDate.value && endDate.value) {
+    store.checkAvailability(id, startDate.value, endDate.value);
   }
 }
 
@@ -135,6 +138,10 @@ function goToBooking() {
 
 onMounted(loadRoom);
 watch(() => route.params.id, loadRoom);
+watch([startDate, endDate], () => {
+  const id = Number(route.params.id);
+  if (!Number.isNaN(id)) checkRoomAvailability(id);
+});
 </script>
 
 <style scoped>

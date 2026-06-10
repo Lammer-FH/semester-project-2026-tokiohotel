@@ -61,3 +61,38 @@
 - Accepted: Conceptual explanation and a minimal example showing request interception
 - Modified: None
 - Rejected: None
+
+## Understanding BookingRequest DTO validation:
+- Prompt: "What annotations should i use on a Spring Boot record DTO to validate required fields, valid email format, and non-blank strings?"
+- Model: Claude Sonnet 4.6 (claude.ai)
+- Accepted: Explanation of @NotNull, @NotBlank, and @Email annotations and how @Valid triggers them in the controller
+- Modified: None
+- Rejected: None
+
+## Booking overlap check with JPQL:
+- Prompt: "How do i write a JPQL query that checks if a room already has a booking that overlaps with a requested date range?"
+- Model: Claude Sonnet 4.6 (claude.ai)
+- Accepted: Explanation of the overlap condition (startDate < requestedEnd AND endDate > requestedStart) and how to use it in a @Query method
+- Modified: Adjusted parameter naming to match our existing repository conventions
+- Rejected: None
+
+## Pinia store pattern for booking:
+- Prompt: "I already have a roomStore with loading/error state - how should i structure a similar bookingStore that wraps createBooking and handles HTTP error codes differently (400 vs 409 vs 404)?"
+- Model: Claude Sonnet 4.6 (claude.ai)
+- Accepted: Store skeleton with error mapping per status code and a resetBooking action
+- Modified: Adjusted error messages to German to match our existing UI language
+- Rejected: None
+
+## Multi-step form pattern in Vue 3:
+- Prompt: "What is a clean way to implement a multi-step form in Vue 3 - form input then review then confirmation - without losing the form data when going back?"
+- Model: Claude Sonnet 4.6 (claude.ai)
+- Accepted: Explanation of using a reactive step variable with v-if sections, keeping refs alive across steps since they are declared at component level
+- Modified: Used our existing styling patterns and Ionic components instead of the generic HTML suggested
+- Rejected: Suggestion to use a separate route per step - we preferred keeping it in one component for simplicity
+
+## Email confirmation field validation:
+- Prompt: "How do i add a confirm-email field in Vue 3 that validates against the original email input in real time?"
+- Model: Claude Sonnet 4.6 (claude.ai)
+- Accepted: Using a computed property to compare both trimmed+lowercased values
+- Modified: None
+- Rejected: None

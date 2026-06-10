@@ -40,7 +40,7 @@
             <RoomCard
             :room="room"
             size="normal"
-            :availability-status="startDate && endDate ? 'available' : 'unknown'"
+            :availability-status="store.getRoomAvailability(room.id)"
           />
           </li>
         </ul>
@@ -128,11 +128,12 @@ const activeFilters = computed(() => {
 
 async function loadRooms() {
   await store.fetchRooms({
-    startDate: startDate.value,
-    endDate: endDate.value,
     page: currentPage.value,
     size: 5,
   });
+  if (startDate.value && endDate.value) {
+    await store.fetchAvailableRoomIds(startDate.value, endDate.value);
+  }
 }
 
 onMounted(loadRooms);

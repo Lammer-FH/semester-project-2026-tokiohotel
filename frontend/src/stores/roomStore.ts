@@ -3,6 +3,8 @@ import { ref } from 'vue';
 import type { Room, PaginationMetadata } from '@/types/api';
 import { roomService, type RoomQuery } from '@/services/roomService';
 
+type AvailabilityStatus = 'available' | 'unavailable' | 'unknown' | 'loading';
+
 function dayStr(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
@@ -13,6 +15,8 @@ export const useRoomStore = defineStore('rooms', () => {
   const pagination = ref<PaginationMetadata | null>(null);
   const loading = ref(false);
   const error = ref<string | null>(null);
+  const availability = ref<AvailabilityStatus>('unknown');
+  const availableRoomIds = ref<Set<number> | null>(null);
 
   const _today = new Date();
   const _tomorrow = new Date(_today);
@@ -56,5 +60,44 @@ export const useRoomStore = defineStore('rooms', () => {
     }
   }
 
-  return { rooms, selectedRoom, pagination, loading, error, fetchRooms, fetchRoomById, checkIn, checkOut, setDates };
+  async function checkAvailability(roomId: number, startDate: string, endDate: string) {
+    if (!startDate || !endDate) {
+      availability.value = 'unknown';
+      return;
+    }
+    availability.value = 'loading';
+    try {
+      const result = await roomService.getRooms({ startDate, endDate, page: 0, size: 100 });
+      const found = (result.content ?? []).some((r) => r.id === roomId);
+      availability.value = found ? 'available' : 'unavailable';
+    } catch {
+      availability.value = 'unknown';
+    }
+  }
+
+  async function fetchAvailableRoomIds(startDate: string, endDate: string) {
+    if (!startDate || !endDate) {
+      availableRoomIds.value = null;
+      return;
+    }
+    try {
+      const result = await roomService.getRooms({ startDate, endDate, page: 0, size: 100 });
+      availableRoomIds.value = new Set(
+        (result.content ?? []).map((r) => r.id).filter((id): id is number => id != null),
+      );
+    } catch {
+      availableRoomIds.value = null;
+    }
+  }
+
+  function getRoomAvailability(roomId: number | undefined): AvailabilityStatus {
+    if (roomId == null || availableRoomIds.value === null) return 'unknown';
+    return availableRoomIds.value.has(roomId) ? 'available' : 'unavailable';
+  }
+
+  return {
+    rooms, selectedRoom, pagination, loading, error, availability, availableRoomIds,
+    fetchRooms, fetchRoomById, checkAvailability, fetchAvailableRoomIds, getRoomAvailability,
+    checkIn, checkOut, setDates,
+  };
 });

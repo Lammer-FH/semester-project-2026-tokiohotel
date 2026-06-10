@@ -3,12 +3,18 @@
     <ion-content :fullscreen="false">
       <AppHeader :dark="true" />
 
+      <div class="booking-topbar">
+        <button type="button" class="dismiss-btn" @click="dismiss">
+          ✕ Buchung abbrechen
+        </button>
+      </div>
+
       <div class="booking-page">
-        <div v-if="store.loading && !room" class="state-message">
+        <div v-if="roomStore.loading && !room" class="state-message">
           Zimmer wird geladen…
         </div>
 
-        <div v-else-if="store.error && !room" class="state-message state-message--error">
+        <div v-else-if="roomStore.error && !room" class="state-message state-message--error">
           <h2>Zimmer konnte nicht geladen werden</h2>
           <p>
             Bitte prüfen Sie Ihre Verbindung oder versuchen Sie es später erneut.
@@ -22,38 +28,38 @@
           Zimmer nicht gefunden.
         </div>
 
-        <!-- Inline confirmation -->
-        <section v-else-if="confirmation" class="confirmation-panel">
-          <h1 class="section-heading">Buchung #{{ confirmation.id }} bestätigt</h1>
+        <!-- Step 3: Confirmation -->
+        <section v-else-if="step === 'confirmed' && bookingStore.confirmation" class="confirmation-panel">
+          <h1 class="section-heading">Buchung #{{ bookingStore.confirmation.id }} bestätigt</h1>
 
           <dl class="confirmation-details">
             <div class="conf-row">
               <dt>Zimmer</dt>
-              <dd>{{ confirmation.room?.roomType?.title }} (Nr. {{ confirmation.room?.roomNumber }})</dd>
+              <dd>{{ bookingStore.confirmation.room?.roomType?.title }} (Nr. {{ bookingStore.confirmation.room?.roomNumber }})</dd>
             </div>
 
             <div class="conf-row">
               <dt>Zeitraum</dt>
-              <dd>{{ confirmation.startDate }} → {{ confirmation.endDate }}</dd>
+              <dd>{{ bookingStore.confirmation.startDate }} → {{ bookingStore.confirmation.endDate }}</dd>
             </div>
 
             <div class="conf-row">
               <dt>Gast</dt>
               <dd>
-                {{ confirmation.guest?.firstName }}
-                {{ confirmation.guest?.lastName }}
-                ({{ confirmation.guest?.email }})
+                {{ bookingStore.confirmation.guest?.firstName }}
+                {{ bookingStore.confirmation.guest?.lastName }}
+                ({{ bookingStore.confirmation.guest?.email }})
               </dd>
             </div>
 
             <div class="conf-row">
               <dt>Frühstück</dt>
-              <dd>{{ confirmation.withBreakfast ? 'Ja' : 'Nein' }}</dd>
+              <dd>{{ bookingStore.confirmation.withBreakfast ? 'Ja' : 'Nein' }}</dd>
             </div>
 
             <div class="conf-row total">
               <dt>Gesamt</dt>
-              <dd>€{{ Number(confirmation.totalCost).toFixed(2) }}</dd>
+              <dd>€{{ Number(bookingStore.confirmation.totalCost).toFixed(2) }}</dd>
             </div>
           </dl>
 
@@ -62,7 +68,72 @@
           </ion-button>
         </section>
 
-        <!-- Booking form -->
+        <!-- Step 2: Review -->
+        <section v-else-if="step === 'review'" class="booking-form">
+          <header class="form-header">
+            <h1 class="section-heading">Buchung überprüfen</h1>
+            <p class="room-summary">
+              Bitte überprüfen Sie Ihre Angaben vor der Buchung.
+            </p>
+          </header>
+
+          <dl class="review-grid">
+            <div class="conf-row">
+              <dt>Zimmer</dt>
+              <dd>{{ room.roomType?.title }} (Nr. {{ room.roomNumber }})</dd>
+            </div>
+
+            <div class="conf-row">
+              <dt>Zeitraum</dt>
+              <dd>{{ formattedCheckIn }} → {{ formattedCheckOut }} ({{ nights }} {{ nights === 1 ? 'Nacht' : 'Nächte' }})</dd>
+            </div>
+
+            <div class="conf-row">
+              <dt>Vorname</dt>
+              <dd>{{ firstName }}</dd>
+            </div>
+
+            <div class="conf-row">
+              <dt>Nachname</dt>
+              <dd>{{ lastName }}</dd>
+            </div>
+
+            <div class="conf-row">
+              <dt>E-Mail</dt>
+              <dd>{{ email }}</dd>
+            </div>
+
+            <div class="conf-row">
+              <dt>Frühstück</dt>
+              <dd>{{ withBreakfast ? 'Ja (+€15 / Nacht)' : 'Nein' }}</dd>
+            </div>
+
+            <div class="conf-row total">
+              <dt>Gesamt</dt>
+              <dd>€{{ total.toFixed(2) }}</dd>
+            </div>
+          </dl>
+
+          <p v-if="bookingStore.error" class="form-error">
+            {{ bookingStore.error }}
+          </p>
+
+          <div class="button-row">
+            <ion-button expand="block" fill="outline" class="secondary-btn" @click="step = 'form'">
+              Zurück
+            </ion-button>
+            <ion-button
+              expand="block"
+              class="primary-btn"
+              :disabled="bookingStore.loading"
+              @click="submit"
+            >
+              {{ bookingStore.loading ? 'Wird gebucht…' : 'Jetzt buchen' }}
+            </ion-button>
+          </div>
+        </section>
+
+        <!-- Step 1: Form -->
         <section v-else class="booking-form">
           <header class="form-header">
             <h1 class="section-heading">Buchen</h1>
@@ -116,6 +187,21 @@
               />
             </div>
 
+            <div class="form-row">
+              <span class="field-label">E-Mail bestätigen</span>
+              <ion-input
+                v-model="confirmEmail"
+                type="email"
+                placeholder="E-Mail erneut eingeben"
+                class="text-input"
+                :class="{ 'input-error': confirmEmail && !emailsMatch }"
+                required
+              />
+              <span v-if="confirmEmail && !emailsMatch" class="field-error">
+                E-Mail-Adressen stimmen nicht überein.
+              </span>
+            </div>
+
             <!-- Breakfast toggle -->
             <div class="form-row toggle-row">
               <span class="field-label">Frühstück (+€15 / Nacht)</span>
@@ -129,17 +215,13 @@
             </div>
           </div>
 
-          <p v-if="error" class="form-error">
-            {{ error }}
-          </p>
-
           <ion-button
             expand="block"
             class="primary-btn"
-            :disabled="!canSubmit || submitting"
-            @click="submit"
+            :disabled="!canProceed"
+            @click="step = 'review'"
           >
-            {{ submitting ? 'Wird gebucht…' : 'Jetzt buchen' }}
+            Weiter zur Übersicht
           </ion-button>
         </section>
 
@@ -171,24 +253,25 @@ import {
 import AppHeader from '@/components/organism/AppHeader.vue';
 import DateRangePicker from '@/components/molecules/DateRangePicker.vue';
 import { useRoomStore } from '@/stores/roomStore';
-import { bookingService } from '@/services/bookingService';
-import type { Booking } from '@/types/api';
+import { useBookingStore } from '@/stores/bookingStore';
+
+type BookingStep = 'form' | 'review' | 'confirmed';
 
 const route = useRoute();
 const router = useRouter();
-const store = useRoomStore();
+const roomStore = useRoomStore();
+const bookingStore = useBookingStore();
 
-const room = computed(() => store.selectedRoom);
+const room = computed(() => roomStore.selectedRoom);
 
 const firstName = ref('');
 const lastName = ref('');
 const email = ref('');
+const confirmEmail = ref('');
 const withBreakfast = ref(false);
 
+const step = ref<BookingStep>('form');
 const isPickerOpen = ref(false);
-const submitting = ref(false);
-const error = ref<string | null>(null);
-const confirmation = ref<Booking | null>(null);
 
 function formatDate(dateStr: string): string {
   if (!dateStr) return '—';
@@ -202,14 +285,14 @@ function formatDate(dateStr: string): string {
   });
 }
 
-const formattedCheckIn = computed(() => formatDate(store.checkIn));
-const formattedCheckOut = computed(() => formatDate(store.checkOut));
+const formattedCheckIn = computed(() => formatDate(roomStore.checkIn));
+const formattedCheckOut = computed(() => formatDate(roomStore.checkOut));
 
 const nights = computed(() => {
-  if (!store.checkIn || !store.checkOut) return 0;
+  if (!roomStore.checkIn || !roomStore.checkOut) return 0;
 
-  const a = new Date(store.checkIn).getTime();
-  const b = new Date(store.checkOut).getTime();
+  const a = new Date(roomStore.checkIn).getTime();
+  const b = new Date(roomStore.checkOut).getTime();
   const diff = Math.round((b - a) / 86400000);
 
   return diff > 0 ? diff : 0;
@@ -222,65 +305,61 @@ const total = computed(() => {
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-const canSubmit = computed(
+const emailsMatch = computed(
+  () => email.value.trim().toLowerCase() === confirmEmail.value.trim().toLowerCase(),
+);
+
+const canProceed = computed(
   () =>
     !!room.value?.id &&
     nights.value > 0 &&
     firstName.value.trim() !== '' &&
     lastName.value.trim() !== '' &&
-    emailRegex.test(email.value.trim()),
+    emailRegex.test(email.value.trim()) &&
+    emailsMatch.value,
 );
 
 function resetState() {
-  confirmation.value = null;
-  error.value = null;
+  bookingStore.resetBooking();
+  step.value = 'form';
   firstName.value = '';
   lastName.value = '';
   email.value = '';
+  confirmEmail.value = '';
   withBreakfast.value = false;
+}
+
+function dismiss() {
+  const id = route.params.id;
+  bookingStore.resetBooking();
+  router.push(`/rooms/${id}`);
 }
 
 function loadRoom() {
   const id = Number(route.params.id);
 
   if (!Number.isNaN(id)) {
-    store.fetchRoomById(id);
+    roomStore.fetchRoomById(id);
   }
 }
 
 async function submit() {
-  if (!canSubmit.value || !room.value?.id) return;
-
-  submitting.value = true;
-  error.value = null;
+  if (!canProceed.value || !room.value?.id) return;
 
   try {
-    const booking = await bookingService.createBooking({
+    await bookingStore.createBooking({
       roomId: room.value.id,
-      startDate: store.checkIn,
-      endDate: store.checkOut,
+      startDate: roomStore.checkIn,
+      endDate: roomStore.checkOut,
       firstName: firstName.value.trim(),
       lastName: lastName.value.trim(),
       email: email.value.trim(),
       withBreakfast: withBreakfast.value,
     });
 
-    confirmation.value = booking;
-  } catch (e: unknown) {
-    const status = (e as { response?: { status?: number } }).response?.status;
-
-    if (status === 409) {
-      error.value = 'Zimmer im gewählten Zeitraum nicht verfügbar.';
-    } else if (status === 400) {
-      error.value = 'Ungültige Eingaben. Bitte prüfen Sie Ihre Angaben.';
-    } else if (status === 404) {
-      error.value = 'Zimmer nicht gefunden.';
-    } else {
-      error.value =
-        'Buchung fehlgeschlagen. Bitte prüfen Sie Ihre Verbindung und versuchen Sie es erneut.';
-    }
-  } finally {
-    submitting.value = false;
+    step.value = 'confirmed';
+  } catch {
+    // error is already set in the store
   }
 }
 
@@ -296,10 +375,37 @@ watch(
 </script>
 
 <style scoped>
+ion-content {
+  --ion-background-color: #111111;
+}
+
+.booking-topbar {
+  display: flex;
+  justify-content: flex-end;
+  padding: 12px 24px 0;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.dismiss-btn {
+  background: transparent;
+  border: none;
+  color: #8a8278;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  padding: 8px 0;
+  transition: color 0.15s;
+}
+
+.dismiss-btn:hover {
+  color: #d97766;
+}
+
 .booking-page {
-  background: #111111;
   min-height: 100vh;
-  padding: 32px 24px 64px;
+  padding: 16px 24px 64px;
   max-width: 720px;
   margin: 0 auto;
 }
@@ -425,6 +531,15 @@ watch(
   font-size: 15px;
 }
 
+.input-error {
+  border-bottom-color: #d97766;
+}
+
+.field-error {
+  color: #d97766;
+  font-size: 12px;
+}
+
 .toggle-row {
   flex-direction: row;
   align-items: center;
@@ -459,6 +574,25 @@ watch(
   font-size: 14px;
 }
 
+.secondary-btn {
+  --color: #c9a96e;
+  --border-color: #c9a96e;
+  --border-radius: 0;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 14px;
+}
+
+.button-row {
+  display: flex;
+  gap: 12px;
+}
+
+.button-row ion-button {
+  flex: 1;
+}
+
 .form-error {
   color: #d97766;
   font-size: 14px;
@@ -466,6 +600,16 @@ watch(
   padding: 12px 16px;
   background: rgba(217, 119, 102, 0.1);
   border-left: 3px solid #d97766;
+}
+
+/* Review grid */
+.review-grid {
+  margin: 0 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #1a1a1a;
+  padding: 24px;
 }
 
 /* Confirmation panel */
