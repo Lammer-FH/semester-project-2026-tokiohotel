@@ -12,7 +12,16 @@ INSERT INTO room_types (id, title, capacity, cost, description, images) VALUES
     (2, 'Standard Doppelzimmer', 2, 130.00, 'Perfekt für Paare mit komfortablem Doppelbett.', 'double_1.webp');
 
 INSERT INTO room_types (id, title, capacity, cost, description, images) VALUES
-    (3, 'Tokio Hotel Luxus-Suite', 4, 350.00, 'Die ultimative Suite mit Blick auf die Bühne und maximalem Luxus.', 'suite_1.jpg');
+    (3, 'Familienzimmer', 4, 180.00, 'Geräumiges Zimmer mit Platz für die ganze Familie.', 'family.webp');
+
+INSERT INTO room_types (id, title, capacity, cost, description, images) VALUES
+    (4, 'Junior Suite', 2, 250.00, 'Elegante Suite mit separatem Wohnbereich für gehobene Ansprüche.', 'junior.jpg');
+
+INSERT INTO room_types (id, title, capacity, cost, description, images) VALUES
+    (5, 'Tokio Hotel Luxus-Suite', 4, 350.00, 'Die ultimative Suite mit Blick auf die Bühne und maximalem Luxus.', 'suite_1.jpg');
+
+INSERT INTO room_types (id, title, capacity, cost, description, images) VALUES
+    (6, 'Penthouse Suite', 6, 500.00, 'Exklusives Penthouse über den Dächern der Stadt mit Panoramablick.', 'penthouse.jpg');
 
 
 -- 3. LINKING: ROOM TYPES <-> EXTRAS
@@ -23,26 +32,35 @@ INSERT INTO room_type_extras (room_type_id, extra_id) VALUES (1, 2);
 INSERT INTO room_type_extras (room_type_id, extra_id) VALUES (2, 1);
 INSERT INTO room_type_extras (room_type_id, extra_id) VALUES (2, 2);
 
--- Luxury suite gets all extras (1, 2, 3, 4)
+-- Family room gets air conditioning (1) and Wi-Fi (2)
 INSERT INTO room_type_extras (room_type_id, extra_id) VALUES (3, 1);
 INSERT INTO room_type_extras (room_type_id, extra_id) VALUES (3, 2);
-INSERT INTO room_type_extras (room_type_id, extra_id) VALUES (3, 3);
-INSERT INTO room_type_extras (room_type_id, extra_id) VALUES (3, 4);
+
+-- Junior suite gets air conditioning (1), Wi-Fi (2) and minibar (3)
+INSERT INTO room_type_extras (room_type_id, extra_id) VALUES (4, 1);
+INSERT INTO room_type_extras (room_type_id, extra_id) VALUES (4, 2);
+INSERT INTO room_type_extras (room_type_id, extra_id) VALUES (4, 3);
+
+-- Luxury suite gets all extras (1, 2, 3, 4)
+INSERT INTO room_type_extras (room_type_id, extra_id) VALUES (5, 1);
+INSERT INTO room_type_extras (room_type_id, extra_id) VALUES (5, 2);
+INSERT INTO room_type_extras (room_type_id, extra_id) VALUES (5, 3);
+INSERT INTO room_type_extras (room_type_id, extra_id) VALUES (5, 4);
+
+-- Penthouse suite gets all extras (1, 2, 3, 4)
+INSERT INTO room_type_extras (room_type_id, extra_id) VALUES (6, 1);
+INSERT INTO room_type_extras (room_type_id, extra_id) VALUES (6, 2);
+INSERT INTO room_type_extras (room_type_id, extra_id) VALUES (6, 3);
+INSERT INTO room_type_extras (room_type_id, extra_id) VALUES (6, 4);
 
 
--- 4. INSERT SPECIFIC ROOMS
--- Single rooms (assigned to RoomType ID 1)
+-- 4. INSERT SPECIFIC ROOMS (exactly one room per room type)
 INSERT INTO rooms (id, room_number, room_type_id) VALUES (1, '101', 1);
-INSERT INTO rooms (id, room_number, room_type_id) VALUES (2, '102', 1);
-
--- Double rooms (assigned to RoomType ID 2)
-INSERT INTO rooms (id, room_number, room_type_id) VALUES (3, '201', 2);
-INSERT INTO rooms (id, room_number, room_type_id) VALUES (4, '202', 2);
-INSERT INTO rooms (id, room_number, room_type_id) VALUES (5, '203', 2);
-
--- Luxury suites (assigned to RoomType ID 3)
-INSERT INTO rooms (id, room_number, room_type_id) VALUES (6, '483', 3);
-INSERT INTO rooms (id, room_number, room_type_id) VALUES (7, '501', 3);
+INSERT INTO rooms (id, room_number, room_type_id) VALUES (2, '201', 2);
+INSERT INTO rooms (id, room_number, room_type_id) VALUES (3, '301', 3);
+INSERT INTO rooms (id, room_number, room_type_id) VALUES (4, '401', 4);
+INSERT INTO rooms (id, room_number, room_type_id) VALUES (5, '501', 5);
+INSERT INTO rooms (id, room_number, room_type_id) VALUES (6, '601', 6);
 
 
 -- 5. INSERT SAMPLE GUEST + BOOKING (blocks room 6 for CURRENT_DATE + 7..+9 to demonstrate filter and 409)
