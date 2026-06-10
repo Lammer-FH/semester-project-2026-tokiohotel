@@ -26,23 +26,12 @@
         <span class="meta-room-number">Zimmer {{ room.roomNumber }}</span>
       </div>
 
-      <div v-if="visibleExtras.length > 0" class="card-extras">
-        <span
-          v-for="extra in visibleExtras"
-          :key="extra.id ?? extra.icon"
-          class="extra-chip"
-        >
-          <ion-icon :name="extra.icon" class="extra-icon" />
-          {{ extra.name }}
-        </span>
-
-        <span v-if="hasOverflow" class="extras-overflow">...</span>
-      </div>
+      <ExtraChipList :extras="room.roomType?.extras ?? []" :max="5" />
 
       <div class="card-actions">
         <button
           type="button"
-          class="book-btn"
+          class="btn-outline book-btn"
           :disabled="isUnavailable"
           @click.stop="navigateToBooking"
         >
@@ -56,9 +45,10 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { IonIcon } from '@ionic/vue';
 import type { Room } from '@/types/api';
 import AvailabilityBadge from '@/components/atoms/AvailabilityBadge.vue';
+import ExtraChipList from '@/components/atoms/ExtraChipList.vue';
+import { resolveRoomImage } from '@/utils/roomImages';
 
 type AvailabilityStatus = 'available' | 'unavailable' | 'unknown' | 'loading';
 
@@ -80,28 +70,11 @@ const isUnavailable = computed(
   () => props.availabilityStatus === 'unavailable',
 );
 
-const imageUrl = computed(() => {
-  const images = props.room.roomType?.images as string[] | string | undefined;
-
-  if (Array.isArray(images) && images.length > 0) {
-    return images[0];
-  }
-
-  if (typeof images === 'string' && images.length > 0) {
-    return images;
-  }
-
-  return `https://placehold.co/600x400?text=${encodeURIComponent(
-    props.room.roomType?.title ?? 'Room',
-  )}`;
-});
-
-const extras = computed(() => props.room.roomType?.extras ?? []);
-
-const hasOverflow = computed(() => extras.value.length > 5);
-
-const visibleExtras = computed(() =>
-  hasOverflow.value ? extras.value.slice(0, 4) : extras.value,
+const imageUrl = computed(() =>
+  resolveRoomImage(
+    props.room.roomType?.images as string[] | string | undefined,
+    props.room.roomType?.title,
+  ),
 );
 
 function navigateToRoom() {
@@ -214,36 +187,6 @@ function navigateToBooking() {
   letter-spacing: 0.04em;
 }
 
-.card-extras {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 2px;
-}
-
-.extra-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  color: #a0998a;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 3px 8px;
-  border-radius: 4px;
-}
-
-.extra-icon {
-  font-size: 13px;
-  color: #c9a96e;
-}
-
-.extras-overflow {
-  font-size: 12px;
-  color: #8a8278;
-  line-height: 1;
-}
-
 .card-actions {
   display: flex;
   justify-content: flex-end;
@@ -252,32 +195,7 @@ function navigateToBooking() {
 }
 
 .book-btn {
-  background: transparent;
-  color: #c9a96e;
-  border: 1px solid #c9a96e;
   padding: 8px 20px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s;
-}
-
-.book-btn:hover {
-  background: #c9a96e;
-  color: #111111;
-}
-
-.book-btn:disabled {
-  color: #8a8278;
-  border-color: rgba(255, 255, 255, 0.15);
-  cursor: not-allowed;
-}
-
-.book-btn:disabled:hover {
-  background: transparent;
-  color: #8a8278;
 }
 
 /* Mobile: stack image on top */
