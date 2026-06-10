@@ -2,11 +2,36 @@
 http://ionicframework.com/docs/theming/ */
 
 :root {
-    /** primary **/
-    --ion-color-primary: #c9a96e;
-    --ion-color-primary-rgb: 201, 169, 110;
-    --ion-color-primary-contrast: #000000;
-    --ion-color-primary-contrast-rgb: 0, 0, 0;
-    --ion-color-primary-shade: #b19561;
-    --ion-color-primary-tint: #ced27d;
+  --ion-color-primary: #c9a96e;
+  --ion-color-primary-rgb: 201, 169, 110;
+  --ion-color-primary-contrast: #111111;
+  --ion-color-primary-contrast-rgb: 17, 17, 17;
+  --ion-color-primary-shade: #b19561;
+  --ion-color-primary-tint: #ceb27d;
+}
+
+ion-input {
+  --highlight-color-focused: #c9a96e !important;
+  --highlight-color-valid: #c9a96e !important;
+  --highlight-color-invalid: #d97766 !important;
+}
+
+ion-textarea {
+  --highlight-color-focused: #c9a96e !important;
+  --highlight-color-valid: #c9a96e !important;
+  --highlight-color-invalid: #d97766 !important;
+}
+
+ion-select {
+  --highlight-color-focused: #c9a96e !important;
+  --highlight-color-valid: #c9a96e !important;
+}
+
+ion-toggle {
+  --track-background-checked: #c9a96e;
+}
+
+ion-item {
+  --highlight-color-focused: #c9a96e !important;
+  --highlight-color-valid: #c9a96e !important;
 }

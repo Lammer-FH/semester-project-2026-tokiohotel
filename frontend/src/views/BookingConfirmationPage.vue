@@ -110,7 +110,7 @@
             <div class="directions-content">
               <div class="map-wrap">
                 <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2659.7!2d16.3688!3d48.2035!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x476d079f3a4b1ccf%3A0x1!2sOpernring%202%2C%201010%20Wien!5e0!3m2!1sde!2sat!4v1"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2659.6404785498014!2d16.366612!3d48.203544!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x476d07984a896be3%3A0x2a0e213c859e6fb5!2sOpernring%202%2C%201010%20Wien%2C%20Austria!5e0!3m2!1sde!2sat!4v1718000000000"
                   class="map-iframe"
                   allowfullscreen
                   loading="lazy"
@@ -184,7 +184,9 @@
                   :key="star"
                   type="button"
                   class="star-btn"
-                  :class="{ active: star <= feedbackRating }"
+                  :class="{ active: star <= (hoverRating || feedbackRating) }"
+                  @mouseenter="hoverRating = star"
+                  @mouseleave="hoverRating = 0"
                   @click="feedbackRating = star"
                 >
                   ★
@@ -239,6 +241,7 @@ const bookingStore = useBookingStore();
 const booking = computed(() => bookingStore.confirmation);
 
 const feedbackRating = ref(0);
+const hoverRating = ref(0);
 const feedbackText = ref('');
 const feedbackSent = ref(false);
 
