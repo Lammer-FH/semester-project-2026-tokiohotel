@@ -8,7 +8,7 @@
           <div class="about-copy">
             <span class="eyebrow">Über uns</span>
 
-            <h1>Ein Hotel für stille Momente mitten in Wien</h1>
+            <h1 class="heading-serif">Ein Hotel für stille Momente mitten in Wien</h1>
 
             <p>
               Das Tokio Hotel ist ein Boutique-Hotel im Herzen Wiens. Unser Ziel ist es,
@@ -28,7 +28,7 @@
         <section class="about-section">
           <div class="section-heading">
             <span class="eyebrow">Unsere Philosophie</span>
-            <h2>Reduziert, warm und bewusst gestaltet</h2>
+            <h2 class="heading-serif">Reduziert, warm und bewusst gestaltet</h2>
           </div>
 
           <div class="text-grid">
@@ -96,25 +96,6 @@ import AppFooter from '@/components/organism/AppFooter.vue';
   display: flex;
   flex-direction: column;
   justify-content: center;
-}
-
-.eyebrow {
-  display: inline-block;
-  color: #c9a96e;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  margin-bottom: 24px;
-}
-
-h1,
-h2 {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-style: italic;
-  font-weight: 400;
-  line-height: 1.15;
-  margin: 0;
 }
 
 h1 {

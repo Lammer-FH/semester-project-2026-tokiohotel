@@ -253,12 +253,6 @@ watch([startDate, endDate, currentPage], loadRooms);
   padding-left: 8px;
 }
 
-.picker-modal {
-  --width: min(400px, 100%);
-  --height: min(560px, 92vh);
-  --border-radius: 20px;
-  --box-shadow: 0 24px 64px rgba(0, 0, 0, 0.65);
-}
 
 .room-list {
   list-style: none;
@@ -296,12 +290,6 @@ watch([startDate, endDate, currentPage], loadRooms);
   .pagination {
     flex-direction: column;
     gap: 12px;
-  }
-
-  .picker-modal {
-    --width: 100%;
-    --height: 88vh;
-    --border-radius: 20px 20px 0 0;
   }
 }
 

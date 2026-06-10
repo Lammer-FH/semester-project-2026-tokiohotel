@@ -6,7 +6,7 @@
       <main class="imprint-page">
         <section class="imprint-hero">
           <span class="eyebrow">Impressum</span>
-          <h1>Rechtliche Informationen</h1>
+          <h1 class="heading-serif">Rechtliche Informationen</h1>
           <p>
             Angaben gemäß den gesetzlichen Informationspflichten für das Tokio Hotel.
           </p>
@@ -14,8 +14,8 @@
 
         <section class="imprint-content">
           <div class="info-card">
-            <span class="card-label">Betreiber</span>
-            <h2>Tokio Hotel</h2>
+            <span class="eyebrow">Betreiber</span>
+            <h2 class="heading-serif">Tokio Hotel</h2>
             <p>
               Opern Ring 2<br />
               1010 Wien<br />
@@ -24,8 +24,8 @@
           </div>
 
           <div class="info-card">
-            <span class="card-label">Kontakt</span>
-            <h2>Kontaktaufnahme</h2>
+            <span class="eyebrow">Kontakt</span>
+            <h2 class="heading-serif">Kontaktaufnahme</h2>
             <p>
               E-Mail:
               <a href="mailto:hello@tokiohotel.at">hello@tokiohotel.at</a><br />
@@ -35,8 +35,8 @@
           </div>
 
           <div class="info-card">
-            <span class="card-label">Projekt</span>
-            <h2>Hinweis</h2>
+            <span class="eyebrow">Projekt</span>
+            <h2 class="heading-serif">Hinweis</h2>
             <p>
               Diese Website wurde im Rahmen eines studentischen Projekts erstellt.
               Die dargestellten Inhalte dienen ausschließlich Demonstrationszwecken.
@@ -44,8 +44,8 @@
           </div>
 
           <div class="info-card">
-            <span class="card-label">Haftung</span>
-            <h2>Haftungsausschluss</h2>
+            <span class="eyebrow">Haftung</span>
+            <h2 class="heading-serif">Haftungsausschluss</h2>
             <p>
               Trotz sorgfältiger inhaltlicher Kontrolle übernehmen wir keine Haftung
               für die Richtigkeit, Vollständigkeit und Aktualität der bereitgestellten
@@ -77,26 +77,6 @@ import AppFooter from '@/components/organism/AppFooter.vue';
 .imprint-hero {
   max-width: 900px;
   margin-bottom: 72px;
-}
-
-.eyebrow,
-.card-label {
-  display: inline-block;
-  color: #c9a96e;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  margin-bottom: 22px;
-}
-
-h1,
-h2 {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-style: italic;
-  font-weight: 400;
-  line-height: 1.15;
-  margin: 0;
 }
 
 h1 {

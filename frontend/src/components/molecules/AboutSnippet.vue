@@ -1,8 +1,8 @@
 <template>
   <section class="about">
     <div class="about-text">
-      <span class="about-label">UNSERE GESCHICHTE</span>
-      <h2 class="about-heading">Ein ruhiger Ort in einer chaotischen Stadt</h2>
+      <span class="eyebrow">UNSERE GESCHICHTE</span>
+      <h2 class="about-heading heading-serif">Ein ruhiger Ort in einer chaotischen Stadt</h2>
       <p class="about-body">
         Im Herzen Wiens entstand das Tokio Hotel aus einer einfachen Überzeugung, dass wahre
         Eleganz in der Stille, im Detail und in der ungehetzten Zeit liegt. Jeder Winkel unseres
@@ -41,23 +41,8 @@
   padding: 80px 60px 80px 64px;
 }
 
-.about-label {
-  display: block;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  color: #c9a96e;
-  text-transform: uppercase;
-  margin-bottom: 20px;
-}
-
 .about-heading {
-  font-family: Georgia, 'Times New Roman', serif;
   font-size: 38px;
-  font-weight: 400;
-  font-style: italic;
-  color: #f5f0e8;
-  line-height: 1.25;
   margin: 0 0 28px;
 }
 
