@@ -173,8 +173,9 @@ async function loadRooms() {
     page: currentPage.value,
     size: 5,
   });
-  if (startDate.value && endDate.value) {
-    await store.fetchAvailableRoomIds(startDate.value, endDate.value);
+  // Use the store dates (which always hold a default) instead of URL query
+  if (store.checkIn && store.checkOut) {
+    await store.fetchAvailableRoomIds(store.checkIn, store.checkOut);
   }
 }
 
