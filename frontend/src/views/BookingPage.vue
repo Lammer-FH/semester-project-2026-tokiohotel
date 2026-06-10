@@ -14,10 +14,14 @@
           Zimmer wird geladen…
         </div>
 
-        <div v-else-if="roomStore.error && !room" class="state-message state-message--error">
+        <div
+          v-else-if="roomStore.error && !room"
+          class="state-message state-message--error"
+        >
           <h2>Zimmer konnte nicht geladen werden</h2>
           <p>
-            Bitte prüfen Sie Ihre Verbindung oder versuchen Sie es später erneut.
+            Bitte prüfen Sie Ihre Verbindung oder versuchen Sie es später
+            erneut.
           </p>
           <button type="button" class="retry-btn" @click="loadRoom">
             Erneut versuchen
@@ -45,7 +49,10 @@
 
             <div class="conf-row">
               <dt>Zeitraum</dt>
-              <dd>{{ formattedCheckIn }} → {{ formattedCheckOut }} ({{ nights }} {{ nights === 1 ? 'Nacht' : 'Nächte' }})</dd>
+              <dd>
+                {{ formattedCheckIn }} → {{ formattedCheckOut }} ({{ nights }}
+                {{ nights === 1 ? 'Nacht' : 'Nächte' }})
+              </dd>
             </div>
 
             <div class="conf-row">
@@ -65,7 +72,9 @@
 
             <div class="conf-row">
               <dt>Frühstück</dt>
-              <dd>{{ withBreakfast ? 'Ja (+€15 / Nacht)' : 'Nein' }}</dd>
+              <dd>
+                {{ withBreakfast ? 'Ja (+€15 / Nacht)' : 'Nein' }}
+              </dd>
             </div>
 
             <div class="conf-row total">
@@ -79,7 +88,12 @@
           </p>
 
           <div class="button-row">
-            <ion-button expand="block" fill="outline" class="secondary-btn" @click="step = 'form'">
+            <ion-button
+              expand="block"
+              fill="outline"
+              class="secondary-btn"
+              @click="step = 'form'"
+            >
               Zurück
             </ion-button>
             <ion-button
@@ -97,10 +111,12 @@
         <section v-else class="booking-form">
           <header class="form-header">
             <h1 class="section-heading">Buchen</h1>
-            <p class="room-summary">
-              {{ room.roomType?.title }} · Zimmer {{ room.roomNumber }} ·
-              €{{ room.roomType?.cost?.toFixed(2) }} / Nacht
-            </p>
+            <h2 class="room-summary">
+              {{ room.roomType?.title }} · Zimmer {{ room.roomNumber }} · €{{
+                room.roomType?.cost?.toFixed(2)
+              }}
+              / Nacht
+            </h2>
           </header>
 
           <div class="form-grid">
@@ -108,11 +124,31 @@
             <div class="form-row">
               <span class="field-label">Zeitraum</span>
               <div class="date-trigger" @click="isPickerOpen = true">
-                <span class="date-value">{{ formattedCheckIn }} → {{ formattedCheckOut }}</span>
+                <span class="date-value"
+                  >{{ formattedCheckIn }} → {{ formattedCheckOut }}</span
+                >
                 <span class="date-nights">
-                  {{ nights }} {{ nights === 1 ? 'Nacht' : 'Nächte' }}
+                  {{ nights }}
+                  {{ nights === 1 ? 'Nacht' : 'Nächte' }}
                 </span>
               </div>
+
+              <!-- Availability for the selected timeframe -->
+              <span
+                v-if="nights > 0 && roomStore.availability !== 'unknown'"
+                class="availability"
+                :class="`availability--${roomStore.availability}`"
+              >
+                <template v-if="roomStore.availability === 'loading'">
+                  Verfügbarkeit wird geprüft…
+                </template>
+                <template v-else-if="roomStore.availability === 'available'">
+                  ✓ In diesem Zeitraum verfügbar
+                </template>
+                <template v-else>
+                  ✕ In diesem Zeitraum nicht verfügbar
+                </template>
+              </span>
             </div>
 
             <!-- Guest fields -->
@@ -122,8 +158,18 @@
                 v-model="firstName"
                 placeholder="Vorname"
                 class="text-input"
+                :class="{
+                  'input-error': firstNameTouched && !firstNameValid,
+                }"
                 required
+                @ion-blur="firstNameTouched = true"
               />
+              <span
+                v-if="firstNameTouched && !firstNameValid"
+                class="field-error"
+              >
+                Bitte geben Sie Ihren Vornamen ein.
+              </span>
             </div>
 
             <div class="form-row">
@@ -132,8 +178,18 @@
                 v-model="lastName"
                 placeholder="Nachname"
                 class="text-input"
+                :class="{
+                  'input-error': lastNameTouched && !lastNameValid,
+                }"
                 required
+                @ion-blur="lastNameTouched = true"
               />
+              <span
+                v-if="lastNameTouched && !lastNameValid"
+                class="field-error"
+              >
+                Bitte geben Sie Ihren Nachnamen ein.
+              </span>
             </div>
 
             <div class="form-row">
@@ -143,8 +199,15 @@
                 type="email"
                 placeholder="email@beispiel.de"
                 class="text-input"
+                :class="{
+                  'input-error': emailTouched && !emailValid,
+                }"
                 required
+                @ion-blur="emailTouched = true"
               />
+              <span v-if="emailTouched && !emailValid" class="field-error">
+                Bitte geben Sie eine gültige E-Mail-Adresse ein.
+              </span>
             </div>
 
             <div class="form-row">
@@ -154,7 +217,9 @@
                 type="email"
                 placeholder="E-Mail erneut eingeben"
                 class="text-input"
-                :class="{ 'input-error': confirmEmail && !emailsMatch }"
+                :class="{
+                  'input-error': confirmEmail && !emailsMatch,
+                }"
                 required
               />
               <span v-if="confirmEmail && !emailsMatch" class="field-error">
@@ -228,6 +293,9 @@ const firstName = ref('');
 const lastName = ref('');
 const email = ref('');
 const confirmEmail = ref('');
+const firstNameTouched = ref(false);
+const lastNameTouched = ref(false);
+const emailTouched = ref(false);
 const withBreakfast = ref(false);
 
 const step = ref<BookingStep>('form');
@@ -265,27 +333,39 @@ const total = computed(() => {
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+const firstNameValid = computed(() => firstName.value.trim() !== '');
+const lastNameValid = computed(() => lastName.value.trim() !== '');
+const emailValid = computed(() => emailRegex.test(email.value.trim()));
+
 const emailsMatch = computed(
-  () => email.value.trim().toLowerCase() === confirmEmail.value.trim().toLowerCase(),
+  () =>
+    email.value.trim().toLowerCase() ===
+    confirmEmail.value.trim().toLowerCase(),
 );
 
 const canProceed = computed(
   () =>
     !!room.value?.id &&
     nights.value > 0 &&
-    firstName.value.trim() !== '' &&
-    lastName.value.trim() !== '' &&
-    emailRegex.test(email.value.trim()) &&
+    roomStore.availability !== 'unavailable' &&
+    roomStore.availability !== 'loading' &&
+    firstNameValid.value &&
+    lastNameValid.value &&
+    emailValid.value &&
     emailsMatch.value,
 );
 
 function resetState() {
   bookingStore.resetBooking();
+  roomStore.availability = 'unknown';
   step.value = 'form';
   firstName.value = '';
   lastName.value = '';
   email.value = '';
   confirmEmail.value = '';
+  firstNameTouched.value = false;
+  lastNameTouched.value = false;
+  emailTouched.value = false;
   withBreakfast.value = false;
 }
 
@@ -327,6 +407,18 @@ async function submit() {
 }
 
 onMounted(loadRoom);
+
+// Check availability as soon as the room is loaded and re-check whenever the
+// timeframe changes, so the user sees availability before attempting to book.
+watch(
+  [() => room.value?.id, () => roomStore.checkIn, () => roomStore.checkOut],
+  ([id, ci, co]) => {
+    if (id && ci && co) {
+      roomStore.checkAvailability(id, ci, co);
+    }
+  },
+  { immediate: true },
+);
 
 watch(
   () => route.params.id,
@@ -409,7 +501,9 @@ ion-content {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 
 .retry-btn:hover {
@@ -482,6 +576,25 @@ ion-content {
 .date-nights {
   color: #8a8278;
   font-size: 12px;
+}
+
+.availability {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  margin-top: 4px;
+}
+
+.availability--loading {
+  color: #8a8278;
+}
+
+.availability--available {
+  color: #7fae7f;
+}
+
+.availability--unavailable {
+  color: #d97766;
 }
 
 .text-input {
