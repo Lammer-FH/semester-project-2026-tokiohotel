@@ -7,9 +7,18 @@
         <header class="rooms-header">
           <h1 class="section-heading">Verfügbare Zimmer</h1>
 
-          <p v-if="activeFilters" class="filter-summary">
+          <button
+            type="button"
+            class="timeframe-trigger"
+            @click="isPickerOpen = true"
+          >
             <ion-icon name="calendar-outline" class="filter-cal-icon" />
-            {{ activeFilters }}
+            <span class="timeframe-text">{{ timeframeLabel }}</span>
+            <span class="timeframe-edit">Ändern</span>
+          </button>
+
+          <p v-if="roomTypeFilter" class="filter-summary">
+            {{ roomTypeFilter }}
           </p>
         </header>
 
@@ -20,7 +29,8 @@
         <div v-else-if="store.error" class="state-message state-message--error">
           <h2>Zimmer konnten nicht geladen werden</h2>
           <p>
-            Bitte prüfen Sie Ihre Verbindung oder versuchen Sie es später erneut.
+            Bitte prüfen Sie Ihre Verbindung oder versuchen Sie es später
+            erneut.
           </p>
           <button type="button" class="retry-btn" @click="loadRooms">
             Erneut versuchen
@@ -29,7 +39,7 @@
 
         <div v-else-if="filteredRooms.length === 0" class="state-message">
           Keine Zimmer für Ihre Anfrage gefunden.
-        </div>        
+        </div>
 
         <ul v-else class="room-list">
           <li
@@ -38,10 +48,10 @@
             class="room-card-item"
           >
             <RoomCard
-            :room="room"
-            size="normal"
-            :availability-status="store.getRoomAvailability(room.id)"
-          />
+              :room="room"
+              size="normal"
+              :availability-status="store.getRoomAvailability(room.id)"
+            />
           </li>
         </ul>
 
@@ -68,17 +78,28 @@
             Nächste
           </button>
         </nav>
+
+        <!-- Date-range picker modal -->
+        <ion-modal
+          :is-open="isPickerOpen"
+          :keep-contents-mounted="true"
+          class="picker-modal"
+          @did-dismiss="onPickerDismiss"
+        >
+          <DateRangePicker @close="isPickerOpen = false" />
+        </ion-modal>
       </div>
     </ion-content>
   </ion-page>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { IonPage, IonContent, IonIcon } from '@ionic/vue';
+import { IonPage, IonContent, IonIcon, IonModal } from '@ionic/vue';
 import AppHeader from '@/components/organism/AppHeader.vue';
 import RoomCard from '@/components/molecules/RoomCard.vue';
+import DateRangePicker from '@/components/molecules/DateRangePicker.vue';
 import { useRoomStore } from '@/stores/roomStore';
 
 const route = useRoute();
@@ -87,7 +108,31 @@ const store = useRoomStore();
 
 const startDate = computed(() => route.query.startDate as string | undefined);
 const endDate = computed(() => route.query.endDate as string | undefined);
-const roomTypeFilter = computed(() => route.query.roomType as string | undefined);
+const roomTypeFilter = computed(
+  () => route.query.roomType as string | undefined,
+);
+
+const isPickerOpen = ref(false);
+
+// Keep the shared store (which the picker reads/writes) in sync with the URL,
+// so opening the picker shows the dates currently reflected in the list.
+if (startDate.value && endDate.value) {
+  store.setDates(startDate.value, endDate.value);
+}
+
+// When the picker closes, push the newly chosen dates into the URL. The existing
+// watch on [startDate, endDate] then refetches rooms + availability.
+function onPickerDismiss() {
+  isPickerOpen.value = false;
+  const ci = store.checkIn;
+  const co = store.checkOut;
+  if (ci && co && (ci !== startDate.value || co !== endDate.value)) {
+    router.push({
+      path: '/rooms',
+      query: { ...route.query, startDate: ci, endDate: co, page: '0' },
+    });
+  }
+}
 
 const currentPage = computed(() => {
   const p = Number(route.query.page);
@@ -116,14 +161,11 @@ function fmtDate(dateStr: string): string {
   return fmt.format(new Date(y, m - 1, d));
 }
 
-const activeFilters = computed(() => {
-  const parts: string[] = [];
-
-  if (startDate.value) parts.push(fmtDate(startDate.value));
-  if (endDate.value) parts.push(fmtDate(endDate.value));
-  if (roomTypeFilter.value) parts.push(roomTypeFilter.value);
-
-  return parts.join(' · ') || null;
+const timeframeLabel = computed(() => {
+  const ci = store.checkIn;
+  const co = store.checkOut;
+  if (ci && co) return `${fmtDate(ci)} → ${fmtDate(co)}`;
+  return 'Zeitraum wählen';
 });
 
 async function loadRooms() {
@@ -178,6 +220,50 @@ watch([startDate, endDate, currentPage], loadRooms);
   flex-shrink: 0;
 }
 
+.timeframe-trigger {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid rgba(201, 169, 110, 0.4);
+  color: #c9a96e;
+  padding: 8px 14px;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+
+.timeframe-trigger:hover {
+  background: rgba(201, 169, 110, 0.1);
+  border-color: #c9a96e;
+}
+
+.timeframe-text {
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.timeframe-edit {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  opacity: 0.7;
+  border-left: 1px solid rgba(201, 169, 110, 0.4);
+  padding-left: 8px;
+}
+
+.picker-modal {
+  --width: min(400px, 100%);
+  --height: min(560px, 92vh);
+  --border-radius: 20px;
+  --box-shadow: 0 24px 64px rgba(0, 0, 0, 0.65);
+}
+
 .state-message {
   padding: 64px 24px;
   text-align: center;
@@ -216,7 +302,9 @@ watch([startDate, endDate, currentPage], loadRooms);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 
 .page-btn:hover:not(:disabled) {
@@ -265,7 +353,9 @@ watch([startDate, endDate, currentPage], loadRooms);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 
 .retry-btn:hover {
@@ -282,6 +372,12 @@ watch([startDate, endDate, currentPage], loadRooms);
     flex-direction: column;
     gap: 12px;
   }
+
+  .picker-modal {
+    --width: 100%;
+    --height: 88vh;
+    --border-radius: 20px 20px 0 0;
+  }
 }
 
 @media (min-width: 768px) {
@@ -295,6 +391,7 @@ watch([startDate, endDate, currentPage], loadRooms);
 
   .section-heading {
     font-size: 48px;
+    margin-bottom: 32px;
   }
 }
 
@@ -311,6 +408,4 @@ watch([startDate, endDate, currentPage], loadRooms);
     font-size: 56px;
   }
 }
-
-
 </style>
