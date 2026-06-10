@@ -28,46 +28,6 @@
           Zimmer nicht gefunden.
         </div>
 
-        <!-- Step 3: Confirmation -->
-        <section v-else-if="step === 'confirmed' && bookingStore.confirmation" class="confirmation-panel">
-          <h1 class="section-heading">Buchung #{{ bookingStore.confirmation.id }} bestätigt</h1>
-
-          <dl class="confirmation-details">
-            <div class="conf-row">
-              <dt>Zimmer</dt>
-              <dd>{{ bookingStore.confirmation.room?.roomType?.title }} (Nr. {{ bookingStore.confirmation.room?.roomNumber }})</dd>
-            </div>
-
-            <div class="conf-row">
-              <dt>Zeitraum</dt>
-              <dd>{{ bookingStore.confirmation.startDate }} → {{ bookingStore.confirmation.endDate }}</dd>
-            </div>
-
-            <div class="conf-row">
-              <dt>Gast</dt>
-              <dd>
-                {{ bookingStore.confirmation.guest?.firstName }}
-                {{ bookingStore.confirmation.guest?.lastName }}
-                ({{ bookingStore.confirmation.guest?.email }})
-              </dd>
-            </div>
-
-            <div class="conf-row">
-              <dt>Frühstück</dt>
-              <dd>{{ bookingStore.confirmation.withBreakfast ? 'Ja' : 'Nein' }}</dd>
-            </div>
-
-            <div class="conf-row total">
-              <dt>Gesamt</dt>
-              <dd>€{{ Number(bookingStore.confirmation.totalCost).toFixed(2) }}</dd>
-            </div>
-          </dl>
-
-          <ion-button expand="block" class="primary-btn" @click="router.push('/')">
-            Zurück zur Startseite
-          </ion-button>
-        </section>
-
         <!-- Step 2: Review -->
         <section v-else-if="step === 'review'" class="booking-form">
           <header class="form-header">
@@ -255,7 +215,7 @@ import DateRangePicker from '@/components/molecules/DateRangePicker.vue';
 import { useRoomStore } from '@/stores/roomStore';
 import { useBookingStore } from '@/stores/bookingStore';
 
-type BookingStep = 'form' | 'review' | 'confirmed';
+type BookingStep = 'form' | 'review';
 
 const route = useRoute();
 const router = useRouter();
@@ -357,7 +317,10 @@ async function submit() {
       withBreakfast: withBreakfast.value,
     });
 
-    step.value = 'confirmed';
+    const bookingId = bookingStore.confirmation?.id;
+    if (bookingId) {
+      router.push(`/bookings/${bookingId}/confirmation`);
+    }
   } catch {
     // error is already set in the store
   }
@@ -610,22 +573,6 @@ ion-content {
   gap: 12px;
   background: #1a1a1a;
   padding: 24px;
-}
-
-/* Confirmation panel */
-.confirmation-panel {
-  background: #1a1a1a;
-  padding: 32px 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.confirmation-details {
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
 }
 
 .conf-row {

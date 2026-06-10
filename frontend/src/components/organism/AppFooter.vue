@@ -7,7 +7,7 @@
         <span class="footer-brand">Tokio Hotel</span>
         <p class="footer-tagline">Ein Ort abseits der Welt.</p>
         <address class="footer-address">
-          Kärntner Ring 12<br />
+          Opern Ring 2<br />
           1010 Wien, Austria
         </address>
       </div>
