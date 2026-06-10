@@ -71,7 +71,7 @@ import AppFooter from '@/components/organism/AppFooter.vue';
   min-height: 100vh;
   background: #0d0d0d;
   color: #f5f0e8;
-  padding: 96px 64px;
+  padding: 96px 28px 64px;
 }
 
 .imprint-hero {
@@ -151,7 +151,7 @@ a:hover {
 }
 
 @media (max-width: 768px) {
-  .imprint-grid {
+  .imprint-content {
     grid-template-columns: 1fr;
   }
 }
