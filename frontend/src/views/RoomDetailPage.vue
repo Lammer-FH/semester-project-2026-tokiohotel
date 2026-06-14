@@ -1,32 +1,33 @@
 <template>
   <ion-page>
-    <ion-content :fullscreen="false">
+    <ion-content :fullscreen="false" class="dark-page">
       <AppHeader :dark="true" />
 
       <div class="detail-page">
         <div class="detail-topbar">
-          <button type="button" class="back-btn" @click="goBack">
+          <button type="button" class="btn-outline" @click="goBack">
             Zurück
           </button>
         </div>
 
-        <div v-if="store.loading" class="state-message">
-          Zimmer wird geladen…
-        </div>
+        <StateMessage
+          v-if="store.loading"
+          message="Zimmer wird geladen…"
+        />
 
-        <div v-else-if="store.error" class="state-message state-message--error">
-          <h2>Zimmer konnte nicht geladen werden</h2>
-          <p>
-            Bitte prüfen Sie Ihre Verbindung oder versuchen Sie es später erneut.
-          </p>
-          <button type="button" class="retry-btn" @click="loadRoom">
-            Erneut versuchen
-          </button>
-        </div>
+        <StateMessage
+          v-else-if="store.error"
+          variant="error"
+          title="Zimmer konnte nicht geladen werden"
+          message="Bitte prüfen Sie Ihre Verbindung oder versuchen Sie es später erneut."
+          retry-label="Erneut versuchen"
+          @retry="loadRoom"
+        />
 
-        <div v-else-if="!room" class="state-message">
-          Zimmer nicht gefunden.
-        </div>
+        <StateMessage
+          v-else-if="!room"
+          message="Zimmer nicht gefunden."
+        />
 
         <article v-else class="detail">
           <div class="detail-image-wrap">
@@ -40,7 +41,7 @@
           <div class="detail-body">
             <header class="detail-header">
               <div class="detail-title-group">
-                <h1 class="detail-title">{{ room.roomType?.title }}</h1>
+                <h1 class="detail-title heading-serif">{{ room.roomType?.title }}</h1>
                 <AvailabilityBadge :status="availabilityStatus" />
               </div>
 
@@ -56,20 +57,11 @@
               <span class="meta-item">Zimmer {{ room.roomNumber }}</span>
             </div>
 
-            <div v-if="room.roomType?.extras?.length" class="detail-extras">
-              <span
-                v-for="extra in room.roomType.extras"
-                :key="extra.id"
-                class="extra-chip"
-              >
-                <ion-icon :name="extra.icon" class="extra-icon" />
-                {{ extra.name }}
-              </span>
-            </div>
+            <ExtraChipList :extras="room.roomType?.extras ?? []" />
 
             <ion-button
               expand="block"
-              class="book-button"
+              class="btn-primary book-button"
               :disabled="isUnavailable"
               @click="goToBooking"
             >
@@ -85,10 +77,13 @@
 <script setup lang="ts">
 import { computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { IonPage, IonContent, IonIcon, IonButton } from '@ionic/vue';
+import { IonPage, IonContent, IonButton } from '@ionic/vue';
 import AppHeader from '@/components/organism/AppHeader.vue';
+import StateMessage from '@/components/atoms/StateMessage.vue';
 import AvailabilityBadge from '@/components/atoms/AvailabilityBadge.vue';
+import ExtraChipList from '@/components/atoms/ExtraChipList.vue';
 import { useRoomStore } from '@/stores/roomStore';
+import { resolveRoomImage } from '@/utils/roomImages';
 
 const route = useRoute();
 const router = useRouter();
@@ -103,24 +98,12 @@ const availabilityStatus = computed(() => store.availability);
 
 const isUnavailable = computed(() => store.availability === 'unavailable');
 
-const imageUrl = computed(() => {
-  const images = room.value?.roomType?.images;
-
-  if (Array.isArray(images) && images.length > 0) {
-    return images[0];
-  }
-
-  if (typeof images === 'string') {
-    const first = images.split(',')[0]?.trim();
-    if (first) {
-      return first.startsWith('/') ? first : `/${first}`;
-    }
-  }
-
-  return `https://placehold.co/1200x800?text=${encodeURIComponent(
-    room.value?.roomType?.title ?? 'Room',
-  )}`;
-});
+const imageUrl = computed(() =>
+  resolveRoomImage(
+    room.value?.roomType?.images as string[] | string | undefined,
+    room.value?.roomType?.title,
+  ),
+);
 
 function loadRoom() {
   const id = Number(route.params.id);
@@ -134,8 +117,6 @@ function checkRoomAvailability(id: number) {
   if (startDate.value && endDate.value) {
     store.checkAvailability(id, startDate.value, endDate.value);
   } else {
-    // No timeframe selected: clear any stale status from a previous room so
-    // the Buchen button isn't wrongly disabled.
     store.availability = 'unknown';
   }
 }
@@ -162,33 +143,9 @@ watch([startDate, endDate], () => {
 </script>
 
 <style scoped>
-ion-content {
-  --ion-background-color: #111111;
-}
-
 .detail-topbar {
   display: flex;
   padding: 12px 0 0;
-}
-
-/* Secondary outline button, matching .retry-btn / .page-btn / .secondary-btn. */
-.back-btn {
-  background: transparent;
-  color: #c9a96e;
-  border: 1px solid #c9a96e;
-  border-radius: 0;
-  padding: 8px 18px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s;
-}
-
-.back-btn:hover {
-  background: #c9a96e;
-  color: #111111;
 }
 
 .detail-page {
@@ -196,13 +153,6 @@ ion-content {
   margin: 0 auto;
   min-height: 100vh;
   padding: 0 24px 64px;
-}
-
-.state-message {
-  padding: 64px 24px;
-  text-align: center;
-  color: #a0998a;
-  font-size: 15px;
 }
 
 .detail {
@@ -246,12 +196,7 @@ ion-content {
 }
 
 .detail-title {
-  font-family: Georgia, 'Times New Roman', serif;
   font-size: 32px;
-  font-weight: 400;
-  font-style: italic;
-  color: #f5f0e8;
-  margin: 0;
   line-height: 1.2;
 }
 
@@ -283,76 +228,8 @@ ion-content {
   letter-spacing: 0.04em;
 }
 
-.detail-extras {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.extra-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  color: #a0998a;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 6px 12px;
-  border-radius: 4px;
-}
-
-.extra-icon {
-  font-size: 15px;
-  color: #c9a96e;
-}
-
 .book-button {
-  --background: #c9a96e;
-  --background-hover: #b89858;
-  --color: #111111;
-  --border-radius: 0;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-size: 14px;
   margin-top: 16px;
-}
-
-.state-message h2 {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 28px;
-  font-weight: 400;
-  font-style: italic;
-  color: #f5f0e8;
-  margin: 0 0 12px;
-}
-
-.state-message p {
-  color: #a0998a;
-  margin: 0 0 20px;
-}
-
-.state-message--error {
-  max-width: 520px;
-  margin: 0 auto;
-}
-
-.retry-btn {
-  background: transparent;
-  color: #c9a96e;
-  border: 1px solid #c9a96e;
-  padding: 10px 22px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s;
-}
-
-.retry-btn:hover {
-  background: #c9a96e;
-  color: #111111;
 }
 
 @media (min-width: 768px) {

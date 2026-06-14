@@ -13,7 +13,7 @@
       </div>
 
       <div class="footer-col">
-        <span class="footer-col-label">Navigation</span>
+        <span class="eyebrow">Navigation</span>
         <nav class="footer-nav">
           <a class="footer-nav-link" @click="router.push('/')">Startseite</a>
           <a class="footer-nav-link" @click="router.push('/rooms')">Zimmer</a>
@@ -24,7 +24,7 @@
       </div>
 
       <div class="footer-col">
-        <span class="footer-col-label">Kontakt</span>
+        <span class="eyebrow">Kontakt</span>
         <a href="mailto:hello@tokiohotel.at" class="footer-contact-link">hello@tokiohotel.at</a>
         <a href="tel:+4315550100" class="footer-contact-link">+43 1 555 0100</a>
       </div>
@@ -89,16 +89,6 @@ const router = useRouter();
 }
 
 /* --- COL 2 --- */
-.footer-col-label {
-  display: block;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: #c9a96e;
-  margin-bottom: 20px;
-}
-
 .footer-nav {
   display: flex;
   flex-direction: column;

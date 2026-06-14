@@ -1,11 +1,11 @@
 <template>
   <ion-page>
-    <ion-content :fullscreen="false">
+    <ion-content :fullscreen="false" class="dark-page">
       <AppHeader :dark="true" />
 
       <div class="rooms-page">
         <header class="rooms-header">
-          <h1 class="section-heading">Verfügbare Zimmer</h1>
+          <h1 class="section-heading heading-serif">Verfügbare Zimmer</h1>
 
           <button
             type="button"
@@ -22,24 +22,24 @@
           </p>
         </header>
 
-        <div v-if="store.loading" class="state-message">
-          Zimmer werden geladen…
-        </div>
+        <StateMessage
+          v-if="store.loading"
+          message="Zimmer werden geladen…"
+        />
 
-        <div v-else-if="store.error" class="state-message state-message--error">
-          <h2>Zimmer konnten nicht geladen werden</h2>
-          <p>
-            Bitte prüfen Sie Ihre Verbindung oder versuchen Sie es später
-            erneut.
-          </p>
-          <button type="button" class="retry-btn" @click="loadRooms">
-            Erneut versuchen
-          </button>
-        </div>
+        <StateMessage
+          v-else-if="store.error"
+          variant="error"
+          title="Zimmer konnten nicht geladen werden"
+          message="Bitte prüfen Sie Ihre Verbindung oder versuchen Sie es später erneut."
+          retry-label="Erneut versuchen"
+          @retry="loadRooms"
+        />
 
-        <div v-else-if="filteredRooms.length === 0" class="state-message">
-          Keine Zimmer für Ihre Anfrage gefunden.
-        </div>
+        <StateMessage
+          v-else-if="filteredRooms.length === 0"
+          message="Keine Zimmer für Ihre Anfrage gefunden."
+        />
 
         <ul v-else class="room-list">
           <li
@@ -58,7 +58,7 @@
         <nav v-if="totalPages > 1" class="pagination">
           <button
             type="button"
-            class="page-btn"
+            class="btn-outline"
             :disabled="currentPage === 0"
             @click="goToPage(currentPage - 1)"
           >
@@ -71,7 +71,7 @@
 
           <button
             type="button"
-            class="page-btn"
+            class="btn-outline"
             :disabled="currentPage >= totalPages - 1"
             @click="goToPage(currentPage + 1)"
           >
@@ -98,6 +98,7 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { IonPage, IonContent, IonIcon, IonModal } from '@ionic/vue';
 import AppHeader from '@/components/organism/AppHeader.vue';
+import StateMessage from '@/components/atoms/StateMessage.vue';
 import RoomCard from '@/components/molecules/RoomCard.vue';
 import DateRangePicker from '@/components/molecules/DateRangePicker.vue';
 import { useRoomStore } from '@/stores/roomStore';
@@ -185,7 +186,6 @@ watch([startDate, endDate, currentPage], loadRooms);
 
 <style scoped>
 .rooms-page {
-  background: #111111;
   min-height: 100vh;
 }
 
@@ -197,13 +197,8 @@ watch([startDate, endDate, currentPage], loadRooms);
 }
 
 .section-heading {
-  font-family: Georgia, 'Times New Roman', serif;
   font-size: 36px;
-  font-weight: 400;
-  font-style: italic;
-  color: #f5f0e8;
   margin: 0;
-  line-height: 1.2;
 }
 
 .filter-summary {
@@ -258,19 +253,6 @@ watch([startDate, endDate, currentPage], loadRooms);
   padding-left: 8px;
 }
 
-.picker-modal {
-  --width: min(400px, 100%);
-  --height: min(560px, 92vh);
-  --border-radius: 20px;
-  --box-shadow: 0 24px 64px rgba(0, 0, 0, 0.65);
-}
-
-.state-message {
-  padding: 64px 24px;
-  text-align: center;
-  color: #a0998a;
-  font-size: 15px;
-}
 
 .room-list {
   list-style: none;
@@ -293,75 +275,11 @@ watch([startDate, endDate, currentPage], loadRooms);
   padding: 0 0 64px;
 }
 
-.page-btn {
-  background: transparent;
-  color: #c9a96e;
-  border: 1px solid #c9a96e;
-  padding: 8px 20px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition:
-    background 0.15s,
-    color 0.15s;
-}
-
-.page-btn:hover:not(:disabled) {
-  background: #c9a96e;
-  color: #111111;
-}
-
-.page-btn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
-
 .page-indicator {
   color: #a0998a;
   font-size: 13px;
   letter-spacing: 0.04em;
   white-space: nowrap;
-}
-
-.state-message h2 {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 28px;
-  font-weight: 400;
-  font-style: italic;
-  color: #f5f0e8;
-  margin: 0 0 12px;
-}
-
-.state-message p {
-  color: #a0998a;
-  margin: 0 0 20px;
-}
-
-.state-message--error {
-  max-width: 520px;
-  margin: 0 auto;
-}
-
-.retry-btn {
-  background: transparent;
-  color: #c9a96e;
-  border: 1px solid #c9a96e;
-  padding: 10px 22px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition:
-    background 0.15s,
-    color 0.15s;
-}
-
-.retry-btn:hover {
-  background: #c9a96e;
-  color: #111111;
 }
 
 @media (max-width: 640px) {
@@ -372,12 +290,6 @@ watch([startDate, endDate, currentPage], loadRooms);
   .pagination {
     flex-direction: column;
     gap: 12px;
-  }
-
-  .picker-modal {
-    --width: 100%;
-    --height: 88vh;
-    --border-radius: 20px 20px 0 0;
   }
 }
 

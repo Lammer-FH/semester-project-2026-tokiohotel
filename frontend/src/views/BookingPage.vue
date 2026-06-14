@@ -1,6 +1,6 @@
 <template>
   <ion-page>
-    <ion-content :fullscreen="false">
+    <ion-content :fullscreen="false" class="dark-page">
       <AppHeader :dark="true" />
 
       <div class="booking-topbar">
@@ -10,32 +10,29 @@
       </div>
 
       <div class="booking-page">
-        <div v-if="roomStore.loading && !room" class="state-message">
-          Zimmer wird geladen…
-        </div>
+        <StateMessage
+          v-if="roomStore.loading && !room"
+          message="Zimmer wird geladen…"
+        />
 
-        <div
+        <StateMessage
           v-else-if="roomStore.error && !room"
-          class="state-message state-message--error"
-        >
-          <h2>Zimmer konnte nicht geladen werden</h2>
-          <p>
-            Bitte prüfen Sie Ihre Verbindung oder versuchen Sie es später
-            erneut.
-          </p>
-          <button type="button" class="retry-btn" @click="loadRoom">
-            Erneut versuchen
-          </button>
-        </div>
+          variant="error"
+          title="Zimmer konnte nicht geladen werden"
+          message="Bitte prüfen Sie Ihre Verbindung oder versuchen Sie es später erneut."
+          retry-label="Erneut versuchen"
+          @retry="loadRoom"
+        />
 
-        <div v-else-if="!room" class="state-message">
-          Zimmer nicht gefunden.
-        </div>
+        <StateMessage
+          v-else-if="!room"
+          message="Zimmer nicht gefunden."
+        />
 
         <!-- Step 2: Review -->
         <section v-else-if="step === 'review'" class="booking-form">
           <header class="form-header">
-            <h1 class="section-heading">Buchung überprüfen</h1>
+            <h1 class="section-heading heading-serif">Buchung überprüfen</h1>
             <p class="room-summary">
               Bitte überprüfen Sie Ihre Angaben vor der Buchung.
             </p>
@@ -91,14 +88,14 @@
             <ion-button
               expand="block"
               fill="outline"
-              class="secondary-btn"
+              class="btn-secondary"
               @click="step = 'form'"
             >
               Zurück
             </ion-button>
             <ion-button
               expand="block"
-              class="primary-btn"
+              class="btn-primary"
               :disabled="bookingStore.loading"
               @click="submit"
             >
@@ -110,7 +107,7 @@
         <!-- Step 1: Form -->
         <section v-else class="booking-form">
           <header class="form-header">
-            <h1 class="section-heading">Buchen</h1>
+            <h1 class="section-heading heading-serif">Buchen</h1>
             <h2 class="room-summary">
               {{ room.roomType?.title }} · Zimmer {{ room.roomNumber }} · €{{
                 room.roomType?.cost?.toFixed(2)
@@ -242,7 +239,7 @@
 
           <ion-button
             expand="block"
-            class="primary-btn"
+            class="btn-primary"
             :disabled="!canProceed"
             @click="step = 'review'"
           >
@@ -276,6 +273,7 @@ import {
   IonModal,
 } from '@ionic/vue';
 import AppHeader from '@/components/organism/AppHeader.vue';
+import StateMessage from '@/components/atoms/StateMessage.vue';
 import DateRangePicker from '@/components/molecules/DateRangePicker.vue';
 import { useRoomStore } from '@/stores/roomStore';
 import { useBookingStore } from '@/stores/bookingStore';
@@ -430,10 +428,6 @@ watch(
 </script>
 
 <style scoped>
-ion-content {
-  --ion-background-color: #111111;
-}
-
 .booking-topbar {
   display: flex;
   justify-content: flex-end;
@@ -465,60 +459,8 @@ ion-content {
   margin: 0 auto;
 }
 
-.state-message {
-  padding: 64px 24px;
-  text-align: center;
-  color: #a0998a;
-  font-size: 15px;
-}
-
-.state-message h2 {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 28px;
-  font-weight: 400;
-  font-style: italic;
-  color: #f5f0e8;
-  margin: 0 0 12px;
-}
-
-.state-message p {
-  color: #a0998a;
-  margin: 0 0 20px;
-}
-
-.state-message--error {
-  max-width: 520px;
-  margin: 0 auto;
-}
-
-.retry-btn {
-  background: transparent;
-  color: #c9a96e;
-  border: 1px solid #c9a96e;
-  padding: 10px 22px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition:
-    background 0.15s,
-    color 0.15s;
-}
-
-.retry-btn:hover {
-  background: #c9a96e;
-  color: #111111;
-}
-
 .section-heading {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 36px;
-  font-weight: 400;
-  font-style: italic;
-  color: #f5f0e8;
   margin: 0 0 8px;
-  line-height: 1.2;
 }
 
 .form-header {
@@ -638,28 +580,6 @@ ion-content {
   font-weight: 600;
 }
 
-.primary-btn {
-  --background: #c9a96e;
-  --background-hover: #b89858;
-  --background-activated: #b89858;
-  --color: #111111;
-  --border-radius: 0;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-size: 14px;
-}
-
-.secondary-btn {
-  --color: #c9a96e;
-  --border-color: #c9a96e;
-  --border-radius: 0;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-size: 14px;
-}
-
 .button-row {
   display: flex;
   gap: 12px;
@@ -718,18 +638,4 @@ ion-content {
   color: #c9a96e;
 }
 
-.picker-modal {
-  --width: min(400px, 100%);
-  --height: min(560px, 92vh);
-  --border-radius: 20px;
-  --box-shadow: 0 24px 64px rgba(0, 0, 0, 0.65);
-}
-
-@media (max-width: 640px) {
-  .picker-modal {
-    --width: 100%;
-    --height: 88vh;
-    --border-radius: 20px 20px 0 0;
-  }
-}
 </style>
