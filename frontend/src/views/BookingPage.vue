@@ -32,13 +32,121 @@
         <!-- Step 2: Review -->
         <section v-else-if="step === 'review'" class="booking-form">
           <header class="form-header">
-            <h1 class="section-heading heading-serif">Buchung überprüfen</h1>
-            <p class="room-summary">
-              Bitte überprüfen Sie Ihre Angaben vor der Buchung.
-            </p>
+            <div class="form-header-row">
+              <div>
+                <h1 class="section-heading heading-serif">Buchung überprüfen</h1>
+                <p class="room-summary">
+                  Bitte überprüfen Sie Ihre Angaben vor der Buchung.
+                </p>
+              </div>
+              <button
+                type="button"
+                class="edit-toggle-btn"
+                @click="toggleEditMode"
+              >
+                {{ editing ? 'Fertig' : 'Bearbeiten' }}
+              </button>
+            </div>
           </header>
 
-          <dl class="review-grid">
+          <!-- Edit mode -->
+          <div v-if="editing" class="edit-section">
+            <!-- Guest fields -->
+            <div class="edit-group">
+              <span class="edit-group-label">Gästedaten</span>
+
+              <div class="form-row">
+                <span class="field-label">Vorname</span>
+                <ion-input
+                  v-model="firstName"
+                  placeholder="Vorname"
+                  class="text-input"
+                  :class="{ 'input-error': firstNameTouched && !firstNameValid }"
+                  @ion-blur="firstNameTouched = true"
+                />
+                <span v-if="firstNameTouched && !firstNameValid" class="field-error">
+                  Bitte geben Sie Ihren Vornamen ein.
+                </span>
+              </div>
+
+              <div class="form-row">
+                <span class="field-label">Nachname</span>
+                <ion-input
+                  v-model="lastName"
+                  placeholder="Nachname"
+                  class="text-input"
+                  :class="{ 'input-error': lastNameTouched && !lastNameValid }"
+                  @ion-blur="lastNameTouched = true"
+                />
+                <span v-if="lastNameTouched && !lastNameValid" class="field-error">
+                  Bitte geben Sie Ihren Nachnamen ein.
+                </span>
+              </div>
+
+              <div class="form-row">
+                <span class="field-label">E-Mail</span>
+                <ion-input
+                  v-model="email"
+                  type="email"
+                  placeholder="email@beispiel.de"
+                  class="text-input"
+                  :class="{ 'input-error': emailTouched && !emailValid }"
+                  @ion-blur="emailTouched = true"
+                />
+                <span v-if="emailTouched && !emailValid" class="field-error">
+                  Bitte geben Sie eine gültige E-Mail-Adresse ein.
+                </span>
+              </div>
+
+              <div class="form-row">
+                <span class="field-label">E-Mail bestätigen</span>
+                <ion-input
+                  v-model="confirmEmail"
+                  type="email"
+                  placeholder="E-Mail erneut eingeben"
+                  class="text-input"
+                  :class="{ 'input-error': confirmEmail && !emailsMatch }"
+                />
+                <span v-if="confirmEmail && !emailsMatch" class="field-error">
+                  E-Mail-Adressen stimmen nicht überein.
+                </span>
+              </div>
+
+              <div class="form-row toggle-row">
+                <span class="field-label">Frühstück (+€15 / Nacht)</span>
+                <ion-toggle v-model="withBreakfast" />
+              </div>
+            </div>
+
+            <!-- Dates -->
+            <div class="edit-group">
+              <span class="edit-group-label">Zeitraum</span>
+
+              <div class="date-trigger" @click="isPickerOpen = true">
+                <span class="date-value">{{ formattedCheckIn }} → {{ formattedCheckOut }}</span>
+                <span class="date-nights">
+                  {{ nights }} {{ nights === 1 ? 'Nacht' : 'Nächte' }}
+                </span>
+              </div>
+            </div>
+
+            <BookingEditRoomList
+              :rooms="editRooms"
+              :loading="editRoomsLoading"
+              :selected-room-id="room?.id"
+              :get-availability="roomStore.getRoomAvailability"
+              @select="selectRoom"
+            />
+
+            <!-- Total in edit mode -->
+            <div class="form-row total-row">
+              <span class="field-label">Gesamt</span>
+              <span class="total-value">€{{ total.toFixed(2) }}</span>
+            </div>
+          </div>
+
+          <!-- Read-only review -->
+          <dl v-else class="review-grid">
             <div class="conf-row">
               <dt>Zimmer</dt>
               <dd>{{ room.roomType?.title }} (Nr. {{ room.roomNumber }})</dd>
@@ -96,7 +204,7 @@
             <ion-button
               expand="block"
               class="btn-primary"
-              :disabled="bookingStore.loading"
+              :disabled="bookingStore.loading || !canProceed"
               @click="submit"
             >
               {{ bookingStore.loading ? 'Wird gebucht…' : 'Jetzt buchen' }}
@@ -275,8 +383,10 @@ import {
 import AppHeader from '@/components/organism/AppHeader.vue';
 import StateMessage from '@/components/atoms/StateMessage.vue';
 import DateRangePicker from '@/components/molecules/DateRangePicker.vue';
+import BookingEditRoomList from '@/components/molecules/BookingEditRoomList.vue';
 import { useRoomStore } from '@/stores/roomStore';
 import { useBookingStore } from '@/stores/bookingStore';
+import type { Room } from '@/types/api';
 
 type BookingStep = 'form' | 'review';
 
@@ -298,6 +408,37 @@ const withBreakfast = ref(false);
 
 const step = ref<BookingStep>('form');
 const isPickerOpen = ref(false);
+const editing = ref(false);
+const editRooms = ref<Room[]>([]);
+const editRoomsLoading = ref(false);
+
+async function loadEditRooms() {
+  editRoomsLoading.value = true;
+  try {
+    await roomStore.fetchRooms({ page: 0, size: 100 });
+    editRooms.value = roomStore.rooms;
+    await roomStore.fetchAvailableRoomIds(roomStore.checkIn, roomStore.checkOut);
+  } finally {
+    editRoomsLoading.value = false;
+  }
+}
+
+async function toggleEditMode() {
+  if (!editing.value) {
+    editing.value = true;
+    confirmEmail.value = email.value;
+    await loadEditRooms();
+  } else {
+    editing.value = false;
+  }
+}
+
+function selectRoom(r: Room) {
+  if (r.id == null) return;
+  if (roomStore.getRoomAvailability(r.id) === 'unavailable') return;
+  roomStore.selectedRoom = r;
+  roomStore.checkAvailability(r.id, roomStore.checkIn, roomStore.checkOut);
+}
 
 function formatDate(dateStr: string): string {
   if (!dateStr) return '—';
@@ -357,6 +498,8 @@ function resetState() {
   bookingStore.resetBooking();
   roomStore.availability = 'unknown';
   step.value = 'form';
+  editing.value = false;
+  editRooms.value = [];
   firstName.value = '';
   lastName.value = '';
   email.value = '';
@@ -370,6 +513,7 @@ function resetState() {
 function dismiss() {
   const id = route.params.id;
   bookingStore.resetBooking();
+  editing.value = false;
   router.push(`/rooms/${id}`);
 }
 
@@ -423,6 +567,15 @@ watch(
   () => {
     resetState();
     loadRoom();
+  },
+);
+
+watch(
+  [() => roomStore.checkIn, () => roomStore.checkOut],
+  () => {
+    if (editing.value) {
+      roomStore.fetchAvailableRoomIds(roomStore.checkIn, roomStore.checkOut);
+    }
   },
 );
 </script>
@@ -636,6 +789,75 @@ watch(
 .conf-row.total dd {
   font-size: 18px;
   color: #c9a96e;
+}
+
+.picker-modal {
+  --width: min(400px, 100%);
+  --height: min(560px, 92vh);
+  --border-radius: 20px;
+  --box-shadow: 0 24px 64px rgba(0, 0, 0, 0.65);
+}
+
+@media (max-width: 640px) {
+  .picker-modal {
+    --width: 100%;
+    --height: 88vh;
+    --border-radius: 20px 20px 0 0;
+  }
+}
+
+/* Edit mode */
+.form-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.edit-toggle-btn {
+  background: transparent;
+  color: #c9a96e;
+  border: 1px solid #c9a96e;
+  padding: 8px 18px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-top: 4px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.edit-toggle-btn:hover {
+  background: #c9a96e;
+  color: #111111;
+}
+
+.edit-section {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  margin-bottom: 24px;
+}
+
+.edit-group {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: #1a1a1a;
+  padding: 24px;
+}
+
+.edit-group-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: #c9a96e;
+  font-weight: 700;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 </style>

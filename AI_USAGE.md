@@ -129,3 +129,10 @@
 - Accepted: Using article > section pattern with dl/dt/dd for key-value pairs and address element for contact info
 - Modified: Adapted the section headings to match our existing uppercase label style
 - Rejected: None
+
+## Implement edit mode on booking review step:
+- Prompt: Described the user story (review booking details before submission with ability to edit) and asked Claude Code to implement it, including room change with availability checks
+- Model: Claude Opus 4.6 (Claude Code)
+- Accepted: Edit button on review step that opens inline editing for guest data, dates, and room selection. Reuses existing RoomCard, AvailabilityBadge, DateRangePicker components and roomStore availability logic (fetchAvailableRoomIds, getRoomAvailability, checkAvailability)
+- Modified: Fixed three bugs after initial implementation — edit state persisting across bookings, RoomCard navigating to detail page instead of selecting, and "Ausgewählt" badge overlapping card content (moved above card). Extracted BookingEditRoomList, ConfirmationDirections, and ConfirmationFeedback components to reduce page file sizes. Hid map from print view.
+- Rejected: None

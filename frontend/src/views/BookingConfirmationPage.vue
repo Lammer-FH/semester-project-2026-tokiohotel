@@ -111,6 +111,8 @@ const router = useRouter();
 const bookingStore = useBookingStore();
 
 const booking = computed(() => bookingStore.confirmation);
+
+
 const extras = computed(() => booking.value?.room?.roomType?.extras ?? []);
 
 const imageUrl = computed(() =>
@@ -325,6 +327,20 @@ onUnmounted(() => {
 @media print {
   .dark-page {
     --ion-background-color: #ffffff;
+    --offset-top: 0 !important;
+    --offset-bottom: 0 !important;
+    overflow: visible !important;
+    contain: none !important;
+  }
+
+  ion-content :deep(.inner-scroll) {
+    overflow: visible !important;
+    position: static !important;
+  }
+
+  ion-content::part(scroll) {
+    overflow: visible !important;
+    position: static !important;
   }
 
   .confirmation-page {
@@ -377,6 +393,10 @@ onUnmounted(() => {
   .room-number,
   .room-description {
     color: #555555;
+  }
+
+  .conf-section {
+    break-inside: avoid;
   }
 
   .room-image-wrap {

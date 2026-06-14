@@ -3,7 +3,7 @@
     <h2 class="section-label">Anreise</h2>
 
     <div class="directions-content">
-      <div class="map-wrap">
+      <div class="map-wrap no-print">
         <iframe
           src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2659.6404785498014!2d16.366612!3d48.203544!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x476d07984a896be3%3A0x2a0e213c859e6fb5!2sOpernring%202%2C%201010%20Wien%2C%20Austria!5e0!3m2!1sde!2sat!4v1718000000000"
           class="map-iframe"
@@ -140,6 +140,12 @@
 
   .directions-info {
     flex: 1;
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
   }
 }
 </style>
