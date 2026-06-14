@@ -1,6 +1,6 @@
 <template>
-  <section class="conf-section no-print">
-    <h2 class="conf-section-heading">Lass uns Feedback da</h2>
+  <section class="feedback-section">
+    <h2 class="section-label">Lass uns Feedback da</h2>
 
     <div class="feedback-card">
       <div class="star-rating">
@@ -9,17 +9,17 @@
           :key="star"
           type="button"
           class="star-btn"
-          :class="{ active: star <= (hoverRating || feedbackRating) }"
+          :class="{ active: star <= (hoverRating || rating) }"
           @mouseenter="hoverRating = star"
           @mouseleave="hoverRating = 0"
-          @click="feedbackRating = star"
+          @click="rating = star"
         >
           ★
         </button>
       </div>
 
       <ion-textarea
-        v-model="feedbackText"
+        v-model="text"
         placeholder="Optionaler Kommentar…"
         class="feedback-textarea"
         :rows="3"
@@ -28,11 +28,11 @@
 
       <ion-button
         expand="block"
-        class="primary-btn"
-        :disabled="feedbackRating === 0 || feedbackSent"
-        @click="sendFeedback"
+        class="btn-primary"
+        :disabled="rating === 0 || sent"
+        @click="submit"
       >
-        {{ feedbackSent ? 'Danke für Ihr Feedback!' : 'Feedback senden' }}
+        {{ sent ? 'Danke für Ihr Feedback!' : 'Feedback senden' }}
       </ion-button>
     </div>
   </section>
@@ -44,26 +44,20 @@ import { IonButton, IonTextarea } from '@ionic/vue';
 
 const props = defineProps<{ bookingId?: number }>();
 
-const feedbackRating = ref(0);
+const rating = ref(0);
 const hoverRating = ref(0);
-const feedbackText = ref('');
-const feedbackSent = ref(false);
+const text = ref('');
+const sent = ref(false);
 
-function sendFeedback() {
-  if (feedbackRating.value === 0) return;
-  console.log('Feedback:', { rating: feedbackRating.value, text: feedbackText.value, bookingId: props.bookingId });
-  feedbackSent.value = true;
+function submit() {
+  if (rating.value === 0) return;
+  console.log('Feedback:', { rating: rating.value, text: text.value, bookingId: props.bookingId });
+  sent.value = true;
 }
 </script>
 
 <style scoped>
-.conf-section {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.conf-section-heading {
+.section-label {
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.14em;
@@ -72,6 +66,7 @@ function sendFeedback() {
   margin: 0;
   padding-bottom: 8px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 16px;
 }
 
 .feedback-card {
@@ -114,23 +109,5 @@ function sendFeedback() {
   --padding-end: 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   font-size: 15px;
-}
-
-.primary-btn {
-  --background: #c9a96e;
-  --background-hover: #b89858;
-  --background-activated: #b89858;
-  --color: #111111;
-  --border-radius: 0;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-size: 14px;
-}
-
-@media print {
-  .no-print {
-    display: none !important;
-  }
 }
 </style>

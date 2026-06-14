@@ -1,6 +1,6 @@
 <template>
-  <section class="conf-section">
-    <h2 class="conf-section-heading">Anreise</h2>
+  <section class="directions">
+    <h2 class="section-label">Anreise</h2>
 
     <div class="directions-content">
       <div class="map-wrap no-print">
@@ -43,13 +43,7 @@
 </template>
 
 <style scoped>
-.conf-section {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.conf-section-heading {
+.section-label {
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.14em;
@@ -58,6 +52,7 @@
   margin: 0;
   padding-bottom: 8px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 16px;
 }
 
 .directions-content {
@@ -151,28 +146,6 @@
 @media print {
   .no-print {
     display: none !important;
-  }
-
-  .directions-info {
-    background: #ffffff;
-    border: 1px solid #eeeeee;
-  }
-
-  .directions-heading {
-    color: #111111;
-  }
-
-  .hotel-address,
-  .travel-option p {
-    color: #555555;
-  }
-
-  .travel-option strong {
-    color: #111111;
-  }
-
-  .travel-link {
-    color: #8a7a5a;
   }
 }
 </style>

@@ -1,24 +1,27 @@
 <template>
   <ion-page>
-    <ion-content :fullscreen="false">
+    <ion-content :fullscreen="false" class="dark-page">
       <AppHeader :dark="true" />
 
       <div class="confirmation-page">
-        <div v-if="bookingStore.loading" class="state-message">
-          Buchung wird geladen…
-        </div>
+        <StateMessage
+          v-if="bookingStore.loading"
+          message="Buchung wird geladen…"
+        />
 
-        <div v-else-if="bookingStore.error" class="state-message state-message--error">
-          <h2>Buchung konnte nicht geladen werden</h2>
-          <p>Bitte prüfen Sie Ihre Verbindung oder versuchen Sie es später erneut.</p>
-          <button type="button" class="retry-btn" @click="loadBooking">
-            Erneut versuchen
-          </button>
-        </div>
+        <StateMessage
+          v-else-if="bookingStore.error"
+          variant="error"
+          title="Buchung konnte nicht geladen werden"
+          message="Bitte prüfen Sie Ihre Verbindung oder versuchen Sie es später erneut."
+          retry-label="Erneut versuchen"
+          @retry="loadBooking"
+        />
 
-        <div v-else-if="!booking" class="state-message">
-          Buchung nicht gefunden.
-        </div>
+        <StateMessage
+          v-else-if="!booking"
+          message="Buchung nicht gefunden."
+        />
 
         <article v-else class="confirmation">
           <!-- Success banner -->
@@ -43,13 +46,7 @@
                 <h3 class="room-title">{{ booking.room?.roomType?.title }}</h3>
                 <span class="room-number">Zimmer {{ booking.room?.roomNumber }}</span>
                 <p class="room-description">{{ booking.room?.roomType?.description }}</p>
-
-                <div v-if="extras.length" class="room-extras">
-                  <span v-for="extra in extras" :key="extra.id" class="extra-chip">
-                    <ion-icon :name="extra.icon" class="extra-icon" />
-                    {{ extra.name }}
-                  </span>
-                </div>
+                <ExtraChipList :extras="extras" />
               </div>
             </div>
           </section>
@@ -57,89 +54,35 @@
           <!-- Booking details -->
           <section class="conf-section">
             <h2 class="conf-section-heading">Buchungsdetails</h2>
-
-            <dl class="details-grid">
-              <div class="detail-row">
-                <dt>Check-in</dt>
-                <dd>{{ formatDate(booking.startDate) }}</dd>
-              </div>
-
-              <div class="detail-row">
-                <dt>Check-out</dt>
-                <dd>{{ formatDate(booking.endDate) }}</dd>
-              </div>
-
-              <div class="detail-row">
-                <dt>Aufenthalt</dt>
-                <dd>{{ nights }} {{ nights === 1 ? 'Nacht' : 'Nächte' }}</dd>
-              </div>
-
-              <div class="detail-row">
-                <dt>Frühstück</dt>
-                <dd>{{ booking.withBreakfast ? 'Ja (+€15 / Nacht)' : 'Nein' }}</dd>
-              </div>
-
-              <div class="detail-row detail-row--total">
-                <dt>Gesamtpreis</dt>
-                <dd>€{{ Number(booking.totalCost).toFixed(2) }}</dd>
-              </div>
-            </dl>
+            <DetailsGrid :rows="bookingRows" />
           </section>
 
           <!-- Guest data -->
           <section class="conf-section">
             <h2 class="conf-section-heading">Ihre Daten</h2>
-
-            <dl class="details-grid">
-              <div class="detail-row">
-                <dt>Name</dt>
-                <dd>{{ booking.guest?.firstName }} {{ booking.guest?.lastName }}</dd>
-              </div>
-
-              <div class="detail-row">
-                <dt>E-Mail</dt>
-                <dd>{{ booking.guest?.email }}</dd>
-              </div>
-            </dl>
+            <DetailsGrid :rows="guestRows" />
           </section>
 
-          <ConfirmationDirections />
+          <!-- Directions -->
+          <DirectionsSection />
 
           <!-- Contact -->
           <section class="conf-section">
             <h2 class="conf-section-heading">Kontakt</h2>
-
-            <dl class="details-grid">
-              <div class="detail-row">
-                <dt>Telefon</dt>
-                <dd>+43 1 234 5678</dd>
-              </div>
-
-              <div class="detail-row">
-                <dt>E-Mail</dt>
-                <dd>rezeption@tokio-hotel.at</dd>
-              </div>
-
-              <div class="detail-row">
-                <dt>Check-in Zeiten</dt>
-                <dd>15:00 – 22:00 Uhr</dd>
-              </div>
-
-              <div class="detail-row">
-                <dt>Check-out</dt>
-                <dd>bis 11:00 Uhr</dd>
-              </div>
-            </dl>
+            <DetailsGrid :rows="contactRows" />
           </section>
 
-          <ConfirmationFeedback :booking-id="booking.id" />
+          <!-- Feedback -->
+          <div class="no-print">
+            <FeedbackSection :booking-id="booking.id" />
+          </div>
 
           <!-- Actions -->
           <div class="conf-actions no-print">
-            <ion-button expand="block" class="primary-btn" @click="printPage">
+            <ion-button expand="block" class="btn-primary" @click="printPage">
               Bestätigung drucken
             </ion-button>
-            <ion-button expand="block" fill="outline" class="secondary-btn" @click="router.push('/')">
+            <ion-button expand="block" fill="outline" class="btn-secondary" @click="router.push('/')">
               Zurück zur Startseite
             </ion-button>
           </div>
@@ -150,13 +93,18 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, watch } from 'vue';
+import {computed, onMounted, onUnmounted, watch} from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { IonPage, IonContent, IonButton, IonIcon } from '@ionic/vue';
+import { IonPage, IonContent, IonButton } from '@ionic/vue';
 import AppHeader from '@/components/organism/AppHeader.vue';
-import ConfirmationDirections from '@/components/molecules/ConfirmationDirections.vue';
-import ConfirmationFeedback from '@/components/molecules/ConfirmationFeedback.vue';
+import StateMessage from '@/components/atoms/StateMessage.vue';
+import ExtraChipList from '@/components/atoms/ExtraChipList.vue';
+import DetailsGrid from '@/components/molecules/DetailsGrid.vue';
+import type { DetailRow } from '@/components/molecules/DetailsGrid.vue';
+import DirectionsSection from '@/components/molecules/DirectionsSection.vue';
+import FeedbackSection from '@/components/molecules/FeedbackSection.vue';
 import { useBookingStore } from '@/stores/bookingStore';
+import { resolveRoomImage } from '@/utils/roomImages';
 
 const route = useRoute();
 const router = useRouter();
@@ -164,26 +112,15 @@ const bookingStore = useBookingStore();
 
 const booking = computed(() => bookingStore.confirmation);
 
+
 const extras = computed(() => booking.value?.room?.roomType?.extras ?? []);
 
-const imageUrl = computed(() => {
-  const images = booking.value?.room?.roomType?.images;
-
-  if (Array.isArray(images) && images.length > 0) {
-    return images[0];
-  }
-
-  if (typeof images === 'string') {
-    const first = images.split(',')[0]?.trim();
-    if (first) {
-      return first.startsWith('/') ? first : `/${first}`;
-    }
-  }
-
-  return `https://placehold.co/800x400?text=${encodeURIComponent(
-    booking.value?.room?.roomType?.title ?? 'Room',
-  )}`;
-});
+const imageUrl = computed(() =>
+  resolveRoomImage(
+    booking.value?.room?.roomType?.images as string[] | string | undefined,
+    booking.value?.room?.roomType?.title,
+  ),
+);
 
 const nights = computed(() => {
   if (!booking.value?.startDate || !booking.value?.endDate) return 0;
@@ -204,6 +141,26 @@ function formatDate(dateStr?: string): string {
   });
 }
 
+const bookingRows = computed<DetailRow[]>(() => [
+  { label: 'Check-in', value: formatDate(booking.value?.startDate) },
+  { label: 'Check-out', value: formatDate(booking.value?.endDate) },
+  { label: 'Aufenthalt', value: `${nights.value} ${nights.value === 1 ? 'Nacht' : 'Nächte'}` },
+  { label: 'Frühstück', value: booking.value?.withBreakfast ? 'Ja (+€15 / Nacht)' : 'Nein' },
+  { label: 'Gesamtpreis', value: `€${Number(booking.value?.totalCost).toFixed(2)}`, highlight: true },
+]);
+
+const guestRows = computed<DetailRow[]>(() => [
+  { label: 'Name', value: `${booking.value?.guest?.firstName} ${booking.value?.guest?.lastName}` },
+  { label: 'E-Mail', value: booking.value?.guest?.email ?? '—' },
+]);
+
+const contactRows: DetailRow[] = [
+  { label: 'Telefon', value: '+43 1 234 5678' },
+  { label: 'E-Mail', value: 'rezeption@tokio-hotel.at' },
+  { label: 'Check-in Zeiten', value: '15:00 – 22:00 Uhr' },
+  { label: 'Check-out', value: 'bis 11:00 Uhr' },
+];
+
 function loadBooking() {
   const id = Number(route.params.id);
   if (!Number.isNaN(id) && (!booking.value || booking.value.id !== id)) {
@@ -217,13 +174,13 @@ function printPage() {
 
 onMounted(loadBooking);
 watch(() => route.params.id, loadBooking);
+
+onUnmounted(() => {
+  bookingStore.resetBooking();
+});
 </script>
 
 <style scoped>
-ion-content {
-  --ion-background-color: #111111;
-}
-
 .confirmation-page {
   min-height: 100vh;
   padding: 32px 24px 64px;
@@ -231,51 +188,6 @@ ion-content {
   margin: 0 auto;
 }
 
-.state-message {
-  padding: 64px 24px;
-  text-align: center;
-  color: #a0998a;
-  font-size: 15px;
-}
-
-.state-message h2 {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 28px;
-  font-weight: 400;
-  font-style: italic;
-  color: #f5f0e8;
-  margin: 0 0 12px;
-}
-
-.state-message p {
-  color: #a0998a;
-  margin: 0 0 20px;
-}
-
-.state-message--error {
-  max-width: 520px;
-  margin: 0 auto;
-}
-
-.retry-btn {
-  background: transparent;
-  color: #c9a96e;
-  border: 1px solid #c9a96e;
-  padding: 10px 22px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s;
-}
-
-.retry-btn:hover {
-  background: #c9a96e;
-  color: #111111;
-}
-
-/* Confirmation layout */
 .confirmation {
   display: flex;
   flex-direction: column;
@@ -387,108 +299,12 @@ ion-content {
   margin: 4px 0 0;
 }
 
-.room-extras {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 4px;
-}
-
-.extra-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  color: #a0998a;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 3px 8px;
-  border-radius: 4px;
-}
-
-.extra-icon {
-  font-size: 13px;
-  color: #c9a96e;
-}
-
-/* Details grid */
-.details-grid {
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  background: #1a1a1a;
-  padding: 20px 24px;
-}
-
-.detail-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 16px;
-  padding: 10px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.detail-row:last-child,
-.detail-row--total {
-  border-bottom: none;
-}
-
-.detail-row dt {
-  font-size: 13px;
-  color: #8a8278;
-  font-weight: 500;
-}
-
-.detail-row dd {
-  margin: 0;
-  color: #f5f0e8;
-  font-size: 15px;
-  text-align: right;
-}
-
-.detail-row + .detail-row--total {
-  border-top: 1px solid rgba(201, 169, 110, 0.25);
-  margin-top: -1px;
-  padding-top: 14px;
-}
-
-.detail-row--total dt,
-.detail-row--total dd {
-  font-size: 18px;
-  font-weight: 600;
-  color: #c9a96e;
-}
-
 /* Actions */
 .conf-actions {
   display: flex;
   flex-direction: column;
   gap: 12px;
   margin-top: 8px;
-}
-
-.primary-btn {
-  --background: #c9a96e;
-  --background-hover: #b89858;
-  --background-activated: #b89858;
-  --color: #111111;
-  --border-radius: 0;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-size: 14px;
-}
-
-.secondary-btn {
-  --color: #c9a96e;
-  --border-color: #c9a96e;
-  --border-radius: 0;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-size: 14px;
 }
 
 /* Mobile */
@@ -509,7 +325,7 @@ ion-content {
 
 /* Print styles */
 @media print {
-  ion-content {
+  .dark-page {
     --ion-background-color: #ffffff;
     --offset-top: 0 !important;
     --offset-bottom: 0 !important;
@@ -565,8 +381,7 @@ ion-content {
     border-bottom-color: #dddddd;
   }
 
-  .room-detail-card,
-  .details-grid {
+  .room-detail-card {
     background: #ffffff;
     border: 1px solid #eeeeee;
   }
@@ -580,39 +395,7 @@ ion-content {
     color: #555555;
   }
 
-  .extra-chip {
-    color: #555555;
-    background: #f5f5f5;
-    border-color: #dddddd;
-  }
-
-  .extra-icon {
-    color: #8a7a5a;
-  }
-
-  .detail-row dt {
-    color: #777777;
-  }
-
-  .detail-row dd {
-    color: #111111;
-  }
-
-  .detail-row--total dt,
-  .detail-row--total dd {
-    color: #8a7a5a;
-    border-top-color: #cccccc;
-  }
-
-  .detail-row {
-    border-bottom-color: #eeeeee;
-  }
-
   .conf-section {
-    break-inside: avoid;
-  }
-
-  .details-grid {
     break-inside: avoid;
   }
 
