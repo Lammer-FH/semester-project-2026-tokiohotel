@@ -93,7 +93,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, watch } from 'vue';
+import {computed, onMounted, onUnmounted, watch} from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { IonPage, IonContent, IonButton } from '@ionic/vue';
 import AppHeader from '@/components/organism/AppHeader.vue';
@@ -172,6 +172,10 @@ function printPage() {
 
 onMounted(loadBooking);
 watch(() => route.params.id, loadBooking);
+
+onUnmounted(() => {
+  bookingStore.resetBooking();
+});
 </script>
 
 <style scoped>
