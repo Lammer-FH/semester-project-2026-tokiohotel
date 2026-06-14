@@ -13,7 +13,7 @@
         wandelt, gestalten wir jeden Aufenthalt rund um die stillen Freuden, die so leicht in
         Vergessenheit geraten.
       </p>
-      <a class="about-link">MEHR ENTDECKEN →</a>
+      <a @click="router.push('/about')" class="about-link">MEHR ENTDECKEN →</a>
     </div>
     <div class="about-image-wrap">
       <img
@@ -25,6 +25,11 @@
     </div>
   </section>
 </template>
+
+<script setup lang="ts">
+import {useRouter} from "vue-router";
+const router = useRouter();
+</script>
 
 <style scoped>
 .about {
