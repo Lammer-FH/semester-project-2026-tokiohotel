@@ -6,7 +6,7 @@ INSERT INTO extras (id, name, icon) VALUES (4, 'Whirlpool', 'water-outline');
 
 -- 2. INSERT ROOM TYPES
 INSERT INTO room_types (id, title, capacity, cost, description, images) VALUES
-    (1, 'Standard Einzelzimmer', 1, 85.00, 'Ein gemütliches Zimmer für Alleinreisende.', 'single_1.jpg');
+    (1, 'Standard Einzelzimmer', 1, 85.00, 'Ein gemütliches Zimmer für Alleinreisende.', 'single_1.webp');
 
 INSERT INTO room_types (id, title, capacity, cost, description, images) VALUES
     (2, 'Standard Doppelzimmer', 2, 130.00, 'Perfekt für Paare mit komfortablem Doppelbett.', 'double_1.webp');
@@ -15,13 +15,13 @@ INSERT INTO room_types (id, title, capacity, cost, description, images) VALUES
     (3, 'Familienzimmer', 4, 180.00, 'Geräumiges Zimmer mit Platz für die ganze Familie.', 'family.webp');
 
 INSERT INTO room_types (id, title, capacity, cost, description, images) VALUES
-    (4, 'Junior Suite', 2, 250.00, 'Elegante Suite mit separatem Wohnbereich für gehobene Ansprüche.', 'junior.jpg');
+    (4, 'Junior Suite', 2, 250.00, 'Elegante Suite mit separatem Wohnbereich für gehobene Ansprüche.', 'junior.webp');
 
 INSERT INTO room_types (id, title, capacity, cost, description, images) VALUES
-    (5, 'Tokio Hotel Luxus-Suite', 4, 350.00, 'Die ultimative Suite mit Blick auf die Bühne und maximalem Luxus.', 'suite_1.jpg');
+    (5, 'Tokio Hotel Luxus-Suite', 4, 350.00, 'Die ultimative Suite mit Blick auf die Bühne und maximalem Luxus.', 'suite_1.webp');
 
 INSERT INTO room_types (id, title, capacity, cost, description, images) VALUES
-    (6, 'Penthouse Suite', 6, 500.00, 'Exklusives Penthouse über den Dächern der Stadt mit Panoramablick.', 'penthouse.jpg');
+    (6, 'Penthouse Suite', 6, 500.00, 'Exklusives Penthouse über den Dächern der Stadt mit Panoramablick.', 'penthouse.webp');
 
 INSERT INTO room_types (id, title, capacity, cost, description, images) VALUES
     (7, 'Test Room', 2, 99.00, 'Test-Zimmer ohne Bild.', NULL);
