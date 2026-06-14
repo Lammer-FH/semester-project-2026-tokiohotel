@@ -23,6 +23,9 @@ INSERT INTO room_types (id, title, capacity, cost, description, images) VALUES
 INSERT INTO room_types (id, title, capacity, cost, description, images) VALUES
     (6, 'Penthouse Suite', 6, 500.00, 'Exklusives Penthouse über den Dächern der Stadt mit Panoramablick.', 'penthouse.jpg');
 
+INSERT INTO room_types (id, title, capacity, cost, description, images) VALUES
+    (7, 'Test Room', 2, 99.00, 'Test-Zimmer ohne Bild.', NULL);
+
 
 -- 3. LINKING: ROOM TYPES <-> EXTRAS
 -- Standard single room gets only Wi-Fi (2)
@@ -61,6 +64,7 @@ INSERT INTO rooms (id, room_number, room_type_id) VALUES (3, '301', 3);
 INSERT INTO rooms (id, room_number, room_type_id) VALUES (4, '401', 4);
 INSERT INTO rooms (id, room_number, room_type_id) VALUES (5, '501', 5);
 INSERT INTO rooms (id, room_number, room_type_id) VALUES (6, '601', 6);
+INSERT INTO rooms (id, room_number, room_type_id) VALUES (7, '701', 7);
 
 
 -- 5. INSERT SAMPLE GUEST + BOOKING (blocks room 6 for CURRENT_DATE + 7..+9 to demonstrate filter and 409)
