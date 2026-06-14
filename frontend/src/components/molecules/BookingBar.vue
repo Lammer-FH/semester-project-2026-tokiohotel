@@ -14,26 +14,6 @@
       <span class="date-value">{{ formattedCheckOut }}</span>
     </div>
 
-    <div class="booking-divider" />
-
-    <!-- Room type filter -->
-    <div class="booking-field">
-      <span class="field-label">Zimmertyp</span>
-      <ion-select
-        v-model="roomType"
-        interface="popover"
-        placeholder="Alle Zimmer"
-        class="field-select"
-      >
-        <ion-select-option value="">Alle Zimmer</ion-select-option>
-        <ion-select-option value="Standard Room">Standard Room</ion-select-option>
-        <ion-select-option value="Double Room">Double Room</ion-select-option>
-        <ion-select-option value="Deluxe">Deluxe</ion-select-option>
-        <ion-select-option value="Suite">Suite</ion-select-option>
-        <ion-select-option value="Family Room">Family Room</ion-select-option>
-      </ion-select>
-    </div>
-
     <div class="booking-action">
       <ion-button class="search-btn" @click="search">Zimmer suchen</ion-button>
     </div>
