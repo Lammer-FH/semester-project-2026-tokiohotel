@@ -103,48 +103,7 @@
             </dl>
           </section>
 
-          <!-- Directions -->
-          <section class="conf-section">
-            <h2 class="conf-section-heading">Anreise</h2>
-
-            <div class="directions-content">
-              <div class="map-wrap">
-                <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2659.6404785498014!2d16.366612!3d48.203544!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x476d07984a896be3%3A0x2a0e213c859e6fb5!2sOpernring%202%2C%201010%20Wien%2C%20Austria!5e0!3m2!1sde!2sat!4v1718000000000"
-                  class="map-iframe"
-                  allowfullscreen
-                  loading="lazy"
-                  referrerpolicy="no-referrer-when-downgrade"
-                  title="Standort Tokio Hotel"
-                />
-              </div>
-
-              <div class="directions-info">
-                <h3 class="directions-heading">So finden Sie uns</h3>
-                <address class="hotel-address">
-                  Tokio Hotel<br />
-                  Opern Ring 2<br />
-                  1010 Wien, Österreich
-                </address>
-
-                <div class="travel-options">
-                  <div class="travel-option">
-                    <strong>Mit der UBahn</strong>
-                    <p>Wien Hauptbahnhof → U1 Richtung Leopoldau → Station Karlsplatz (ca. 10 Min.), dann 3 Minuten zu Fuß.</p>
-                    <p>Kaufen Sie Tickets hier: <a href="https://shop.wienmobil.at/en/products" target="_blank" rel="noopener" class="travel-link">shop.wienmobil.at</a></p>
-                  </div>
-                  <div class="travel-option">
-                    <strong>Mit dem Auto</strong>
-                    <p>Über die A1/A2 Richtung Zentrum. Tiefgarage vorhanden (€18/Tag).</p>
-                  </div>
-                  <div class="travel-option">
-                    <strong>Vom Flughafen</strong>
-                    <p>Wien-Schwechat → City Airport Train (CAT) zum Bahnhof Wien Mitte (16 Min.), dann U3 bis Stephansplatz.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
+          <ConfirmationDirections />
 
           <!-- Contact -->
           <section class="conf-section">
@@ -173,44 +132,7 @@
             </dl>
           </section>
 
-          <!-- Feedback -->
-          <section class="conf-section no-print">
-            <h2 class="conf-section-heading">Lass uns Feedback da</h2>
-
-            <div class="feedback-card">
-              <div class="star-rating">
-                <button
-                  v-for="star in 5"
-                  :key="star"
-                  type="button"
-                  class="star-btn"
-                  :class="{ active: star <= (hoverRating || feedbackRating) }"
-                  @mouseenter="hoverRating = star"
-                  @mouseleave="hoverRating = 0"
-                  @click="feedbackRating = star"
-                >
-                  ★
-                </button>
-              </div>
-
-              <ion-textarea
-                v-model="feedbackText"
-                placeholder="Optionaler Kommentar…"
-                class="feedback-textarea"
-                :rows="3"
-                :auto-grow="true"
-              />
-
-              <ion-button
-                expand="block"
-                class="primary-btn"
-                :disabled="feedbackRating === 0 || feedbackSent"
-                @click="sendFeedback"
-              >
-                {{ feedbackSent ? 'Danke für Ihr Feedback!' : 'Feedback senden' }}
-              </ion-button>
-            </div>
-          </section>
+          <ConfirmationFeedback :booking-id="booking.id" />
 
           <!-- Actions -->
           <div class="conf-actions no-print">
@@ -230,8 +152,10 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { IonPage, IonContent, IonButton, IonIcon, IonTextarea } from '@ionic/vue';
+import { IonPage, IonContent, IonButton, IonIcon } from '@ionic/vue';
 import AppHeader from '@/components/organism/AppHeader.vue';
+import ConfirmationDirections from '@/components/molecules/ConfirmationDirections.vue';
+import ConfirmationFeedback from '@/components/molecules/ConfirmationFeedback.vue';
 import { useBookingStore } from '@/stores/bookingStore';
 
 const route = useRoute();
@@ -239,18 +163,6 @@ const router = useRouter();
 const bookingStore = useBookingStore();
 
 const booking = computed(() => bookingStore.confirmation);
-
-const feedbackRating = ref(0);
-const hoverRating = ref(0);
-const feedbackText = ref('');
-const feedbackSent = ref(false);
-
-function sendFeedback() {
-  if (feedbackRating.value === 0) return;
-  // TODO: send to backend once endpoint exists
-  console.log('Feedback:', { rating: feedbackRating.value, text: feedbackText.value, bookingId: booking.value?.id });
-  feedbackSent.value = true;
-}
 
 const extras = computed(() => booking.value?.room?.roomType?.extras ?? []);
 
@@ -549,122 +461,6 @@ ion-content {
   color: #c9a96e;
 }
 
-/* Directions */
-.directions-content {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.map-wrap {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  overflow: hidden;
-  background: #1a1a1a;
-}
-
-.map-iframe {
-  width: 100%;
-  height: 100%;
-  border: none;
-}
-
-.directions-info {
-  background: #1a1a1a;
-  padding: 24px;
-}
-
-.directions-heading {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 18px;
-  font-weight: 400;
-  font-style: italic;
-  color: #f5f0e8;
-  margin: 0 0 12px;
-}
-
-.hotel-address {
-  font-style: normal;
-  color: #a0998a;
-  font-size: 14px;
-  line-height: 1.6;
-  margin-bottom: 20px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.travel-options {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.travel-option strong {
-  font-size: 13px;
-  color: #f5f0e8;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-}
-
-.travel-option p {
-  font-size: 14px;
-  color: #a0998a;
-  line-height: 1.5;
-  margin: 4px 0 0;
-}
-
-.travel-link {
-  color: #c9a96e;
-  text-decoration: none;
-}
-
-.travel-link:hover {
-  text-decoration: underline;
-}
-
-/* Feedback */
-.feedback-card {
-  background: #1a1a1a;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.star-rating {
-  display: flex;
-  gap: 8px;
-}
-
-.star-btn {
-  background: transparent;
-  border: none;
-  font-size: 28px;
-  color: #3a3a3a;
-  cursor: pointer;
-  padding: 0;
-  transition: color 0.15s, transform 0.1s;
-}
-
-.star-btn:hover,
-.star-btn.active {
-  color: #c9a96e;
-}
-
-.star-btn:hover {
-  transform: scale(1.15);
-}
-
-.feedback-textarea {
-  --background: transparent;
-  --color: #f5f0e8;
-  --placeholder-color: #5a5248;
-  --padding-start: 0;
-  --padding-end: 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-  font-size: 15px;
-}
-
 /* Actions */
 .conf-actions {
   display: flex;
@@ -708,22 +504,6 @@ ion-content {
 
   .room-info {
     padding: 16px;
-  }
-}
-
-@media (min-width: 768px) {
-  .directions-content {
-    flex-direction: row;
-  }
-
-  .map-wrap {
-    flex: 1;
-    aspect-ratio: auto;
-    min-height: 300px;
-  }
-
-  .directions-info {
-    flex: 1;
   }
 }
 
@@ -772,21 +552,17 @@ ion-content {
   }
 
   .room-detail-card,
-  .details-grid,
-  .directions-info {
+  .details-grid {
     background: #ffffff;
     border: 1px solid #eeeeee;
   }
 
-  .room-title,
-  .directions-heading {
+  .room-title {
     color: #111111;
   }
 
   .room-number,
-  .room-description,
-  .hotel-address,
-  .travel-option p {
+  .room-description {
     color: #555555;
   }
 
@@ -818,13 +594,6 @@ ion-content {
     border-bottom-color: #eeeeee;
   }
 
-  .travel-option strong {
-    color: #111111;
-  }
-
-  .travel-link {
-    color: #8a7a5a;
-  }
 
   .map-wrap {
     height: 250px;
