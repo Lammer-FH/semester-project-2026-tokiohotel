@@ -150,7 +150,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { IonPage, IonContent, IonButton, IonIcon } from '@ionic/vue';
 import AppHeader from '@/components/organism/AppHeader.vue';
@@ -594,9 +594,12 @@ ion-content {
     border-bottom-color: #eeeeee;
   }
 
+  .conf-section {
+    break-inside: avoid;
+  }
 
-  .map-wrap {
-    height: 250px;
+  .details-grid {
+    break-inside: avoid;
   }
 
   .room-image-wrap {
