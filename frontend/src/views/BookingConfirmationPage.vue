@@ -511,6 +511,20 @@ ion-content {
 @media print {
   ion-content {
     --ion-background-color: #ffffff;
+    --offset-top: 0 !important;
+    --offset-bottom: 0 !important;
+    overflow: visible !important;
+    contain: none !important;
+  }
+
+  ion-content :deep(.inner-scroll) {
+    overflow: visible !important;
+    position: static !important;
+  }
+
+  ion-content::part(scroll) {
+    overflow: visible !important;
+    position: static !important;
   }
 
   .confirmation-page {
