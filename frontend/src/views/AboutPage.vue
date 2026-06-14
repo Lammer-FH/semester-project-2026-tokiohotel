@@ -125,7 +125,7 @@ p {
   min-height: 620px;
   background:
     linear-gradient(rgba(13, 13, 13, 0.05), rgba(13, 13, 13, 0.2)),
-    url('https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=1200&q=80');
+    url('/hotel-bar.webp');
   background-size: cover;
   background-position: center;
 }
