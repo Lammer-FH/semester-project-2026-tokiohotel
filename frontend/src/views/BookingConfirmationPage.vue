@@ -173,7 +173,14 @@ function printPage() {
 }
 
 onMounted(loadBooking);
-watch(() => route.params.id, loadBooking);
+watch(
+    () => route.params.id,
+    () => {
+      if (route.path.includes('/confirmation')) {
+        loadBooking();
+      }
+    }
+);
 
 onUnmounted(() => {
   bookingStore.resetBooking();
