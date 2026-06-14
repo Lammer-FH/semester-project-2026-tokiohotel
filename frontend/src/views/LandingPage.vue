@@ -5,7 +5,7 @@
         <AppHeader />
         <HeroSection />
       </div>
-      <AboutSnippet />
+      <AboutSection />
       <AppFooter />
     </ion-content>
   </ion-page>
@@ -16,7 +16,7 @@ import { IonPage, IonContent } from '@ionic/vue';
 import AppHeader from '@/components/organism/AppHeader.vue';
 import AppFooter from '@/components/organism/AppFooter.vue';
 import HeroSection from '@/components/molecules/HeroSection.vue';
-import AboutSnippet from '@/components/molecules/AboutSnippet.vue';
+import AboutSection from "@/components/molecules/AboutSection.vue";
 </script>
 
 <style scoped>
